@@ -53,14 +53,15 @@ class AuthStorage {
     }
   }
 
-  static Future<void> logout() async {
+  static Future<void> clearAllData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_authTokenKey);
       await prefs.remove(_userDataKey);
       await prefs.remove(_isLoggedInKey);
+      print('تم مسح بيانات الجلسة');
     } catch (e) {
-      throw Exception('فشل في تسجيل الخروج');
+      throw Exception('فشل في مسح بيانات الجلسة');
     }
   }
 }

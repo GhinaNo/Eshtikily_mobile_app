@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as client;
 import '../constants/api_constants.dart';
+import '../utils/auth_storage.dart';
 import '../utils/error_handler_services.dart';
 import '../utils/logger.dart';
 import 'package:http/http.dart' as http;
@@ -11,20 +12,35 @@ class HttpClient {
   Future<Map<String, dynamic>> post({
     required String endpoint,
     required Map<String, dynamic> data,
+    bool requiresAuth = false,
   }) async {
     try {
       final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
 
+      final headers = <String, String>{
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
+
+      if (requiresAuth) {
+        final token = await AuthStorage.getAuthToken();
+        if (token != null) {
+          headers['Authorization'] = 'Bearer $token';
+          Logger.debug('Using token: ${token.substring(0, 20)}...');
+        } else {
+          Logger.error('No token found for authenticated request');
+          throw Exception('لم يتم العثور على رمز الجلسة');
+        }
+      }
+
       Logger.api('POST', endpoint);
       Logger.debug('URL: $url');
       Logger.debug('Data: $data');
+      Logger.debug('Headers: $headers');
 
       final response = await client.post(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: headers,
         body: json.encode(data),
       ).timeout(const Duration(seconds: ApiConstants.timeoutSeconds));
 
@@ -35,26 +51,41 @@ class HttpClient {
     } catch (e) {
       Logger.error('Request failed', error: e);
 
+      if (requiresAuth && e.toString().contains('401')) {
+        Logger.error('Token expired, clearing local data');
+        await AuthStorage.clearAllData();
+      }
+
       final arabicError = ErrorHandlerService.handleApiError(e);
       throw Exception(arabicError);
     }
   }
-
   Future<Map<String, dynamic>> get({
     required String endpoint,
     Map<String, String>? headers,
+    bool requiresAuth = false,
   }) async {
     try {
       final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
 
+      final finalHeaders = headers ?? <String, String>{
+        'Accept': 'application/json',
+      };
+
+      if (requiresAuth) {
+        final token = await AuthStorage.getAuthToken();
+        if (token != null) {
+          finalHeaders['Authorization'] = 'Bearer $token';
+        }
+      }
+
       Logger.api('GET', endpoint);
       Logger.debug('URL: $url');
+      Logger.debug('Headers: $finalHeaders');
 
       final response = await client.get(
         url,
-        headers: headers ?? {
-          'Accept': 'application/json',
-        },
+        headers: finalHeaders,
       ).timeout(const Duration(seconds: ApiConstants.timeoutSeconds));
 
       Logger.debug('Status: ${response.statusCode}');
@@ -63,11 +94,11 @@ class HttpClient {
       return _handleResponse(response);
     } catch (e) {
       Logger.error('GET Request failed', error: e);
-
       final arabicError = ErrorHandlerService.handleApiError(e);
       throw Exception(arabicError);
     }
   }
+}
 
   Future<bool> ping() async {
     try {
@@ -159,4 +190,3 @@ class HttpClient {
 
     return !technicalTerms.any((term) => message.toLowerCase().contains(term));
   }
-}

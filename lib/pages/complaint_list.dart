@@ -3,6 +3,8 @@ import 'package:eshhtikiyl_app/models/complaint_display.dart';
 import 'package:eshhtikiyl_app/pages/complaint_detail.dart';
 import 'package:flutter/material.dart';
 
+import '../services/logout_srevice.dart';
+
 class ListComplaintsPage extends StatefulWidget {
   const ListComplaintsPage({super.key});
 
@@ -42,6 +44,13 @@ class _ListComplaintsPageState extends State<ListComplaintsPage> {
       appBar: AppBar(
         title: const Text('My Complaints'),
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout,color: Color(0xFFBFA46F),),
+            onPressed: () => LogoutService.handleLogout(context),
+            tooltip: 'تسجيل الخروج',
+          ),
+        ],
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),

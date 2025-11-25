@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'package:eshhtikiyl_app/utils/show_toast.dart';
 import 'package:eshhtikiyl_app/widgets/gold_btn.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 
+import '../core/utils/toast_services.dart';
 import '../models/complaint.dart';
 
 class CreateComplaintPage extends StatefulWidget {
@@ -83,10 +83,10 @@ class _CreateComplaintPageState extends State<CreateComplaintPage> {
       debugPrint('Complaint created: ${complaint.type}');
 
       // Show success message and navigate back
-      showToast(
-        context: context,
+      ToastService.showSuccess(
+        context,
+        "Complaint Created Successfully",
         title: "Complaint Created",
-        msg: "Complaint Created Successfully",
       );
 
       Navigator.pop(context, complaint);

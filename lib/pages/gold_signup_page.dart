@@ -92,7 +92,7 @@ class _SignupPageState extends State<SignupPage> {
                     Text(
                       'انضم إلى منصة الشكاوى الحكومية',
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),

@@ -1,5 +1,8 @@
+
+import 'package:eshhtikiyl_app/core/network/http_client.dart';
+import 'package:eshhtikiyl_app/core/utils/auth_storage.dart';
+
 import '../../../../core/network/api_endpoints.dart';
-import '../../../../core/network/http_client.dart';
 import '../../../../core/utils/logger.dart';
 import '../models/login_request.dart';
 import '../models/login_response.dart';
@@ -30,7 +33,6 @@ class AuthRemoteDataSource {
     }
   }
 
-
   Future<VerificationResponse> verifyCode(VerificationRequest request) async {
     try {
       Logger.info('Starting verification for: ${request.email}');
@@ -41,13 +43,18 @@ class AuthRemoteDataSource {
       );
 
       Logger.info('Verification successful for: ${request.email}');
-      return VerificationResponse.fromJson(response);
+
+      final verificationResponse = VerificationResponse.fromJson(response);
+
+      await AuthStorage.saveAuthToken(verificationResponse.user.token);
+      await AuthStorage.saveUserData(verificationResponse.user.toJson());
+
+      return verificationResponse;
     } catch (e) {
       Logger.error('Verification failed for: ${request.email}', error: e);
       rethrow;
     }
   }
-
 
   Future<LoginResponse> login(LoginRequest request) async {
     try {
@@ -59,12 +66,35 @@ class AuthRemoteDataSource {
       );
 
       Logger.info('Login successful for: ${request.email}');
-      return LoginResponse.fromJson(response);
+
+      final loginResponse = LoginResponse.fromJson(response);
+
+      await AuthStorage.saveAuthToken(loginResponse.user.token);
+      await AuthStorage.saveUserData(loginResponse.user.toJson());
+
+      return loginResponse;
     } catch (e) {
       Logger.error('Login failed for: ${request.email}', error: e);
       rethrow;
     }
   }
+
+  Future<void> logout() async {
+    try {
+      Logger.info('Starting logout process');
+
+      await httpClient.post(
+        endpoint: ApiEndpoints.logout,
+        data: {},
+        requiresAuth: true,
+      );
+
+      Logger.info('Logout successful');
+
+      await AuthStorage.clearAllData();
+    } catch (e) {
+      Logger.error('Logout failed', error: e);
+      rethrow;
+    }
+  }
 }
-
-

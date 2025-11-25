@@ -49,4 +49,17 @@ class UserData {
       updatedAt: json['updated_at'] ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'phone_number': phoneNumber,
+      'email_verified_at': emailVerifiedAt,
+      'token': token,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
+    };
+  }
 }
