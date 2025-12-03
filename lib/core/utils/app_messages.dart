@@ -27,6 +27,12 @@ class AppMessages {
   static const String processing = "جاري المعالجة...";
   static const String loading = "جاري التحميل...";
   static const String sendingCode = "جاري إرسال رمز التحقق...";
+
+  static const String noInternet = 'لا يوجد اتصال بالإنترنت';
+  static const String pleaseCheckConnection = 'يرجى التحقق من اتصال الإنترنت';
+  static const String retryConnection = 'إعادة المحاولة';
+  static const String dataFromCache = 'عرض البيانات المخزنة';
+  static const String connectionRestored = 'تم استعادة الاتصال بالإنترنت';
 }
 
 class AppTitles {

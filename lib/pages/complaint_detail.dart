@@ -1,8 +1,6 @@
-
 import 'package:eshhtikiyl_app/models/complaint_display.dart';
 import 'package:eshhtikiyl_app/pages/edit_complaint.dart';
 import 'package:flutter/material.dart';
-
 import '../models/complaint.dart';
 
 class ComplaintDetailsPage extends StatelessWidget {
@@ -14,108 +12,97 @@ class ComplaintDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Complaint Details'),
-        foregroundColor: Colors.white,
-        actions: [
-          if (complaint.status == ComplaintStatus.requiresExtraInformation)
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        EditComplaintPage(complaint: complaint),
-                  ),
-                );
-              },
+        title: Row(
+          children: [
+            // الشعار
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/logo.png'),
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Complaint Type
-              _buildDetailCard('Complaint Type', complaint.type),
-
-              const SizedBox(height: 16),
-
-              // Agency
-              _buildDetailCard('Agency', complaint.agency),
-
-              const SizedBox(height: 16),
-
-              // Location
-              _buildDetailCard('Location', complaint.location),
-
-              const SizedBox(height: 16),
-
-              // Description
-              _buildDetailCard('Description', complaint.description),
-
-              const SizedBox(height: 16),
-
-              // Status
-              _buildStatusCard(),
-
-              const SizedBox(height: 16),
-
-              // Extra Information (if available)
-              if (complaint.extraInformation != null)
-                _buildDetailCard(
-                  'Additional Information',
-                  complaint.extraInformation!,
-                ),
-
-              const SizedBox(height: 16),
-
-              // Notes from Employee (if available)
-              if (complaint.notesFromEmployee != null)
-                _buildDetailCard(
-                  'Notes from Employee',
-                  complaint.notesFromEmployee!,
-                ),
-
-              const SizedBox(height: 16),
-
-              // Images Section
-              if (complaint.images.isNotEmpty) _buildImagesSection(),
-
-              const SizedBox(height: 16),
-
-              // Documents Section
-              if (complaint.docs.isNotEmpty) _buildDocumentsSection(),
-            ],
+            const SizedBox(width: 12),
+            const Text(
+              'تفاصيل الشكوى',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontFamily: 'Almarai',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: const Color.fromARGB(168, 10, 60, 58),
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.3),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20),
           ),
         ),
       ),
-    );
-  }
+      body: Container(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // بطاقة الحالة
+                _buildStatusCard(),
+                const SizedBox(height: 20),
 
-  Widget _buildDetailCard(String title, String content) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
-              ),
+                // معلومات الشكوى
+                _buildDetailCard('نوع الشكوى', complaint.type, Icons.report_problem),
+                const SizedBox(height: 12),
+
+                _buildDetailCard('الجهة المعنية', complaint.agency, Icons.business),
+                const SizedBox(height: 12),
+
+                _buildDetailCard('الموقع', complaint.location, Icons.location_on),
+                const SizedBox(height: 12),
+
+                _buildDetailCard('وصف المشكلة', complaint.description, Icons.description),
+                const SizedBox(height: 20),
+
+                // معلومات إضافية إذا وجدت
+                if (complaint.extraInformation != null)
+                  Column(
+                    children: [
+                      _buildDetailCard('معلومات إضافية', complaint.extraInformation!, Icons.info_outline),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+
+                // ملاحظات الموظف إذا وجدت
+                if (complaint.notesFromEmployee != null)
+                  Column(
+                    children: [
+                      _buildDetailCard('ملاحظات الموظف', complaint.notesFromEmployee!, Icons.notes),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+
+                // الصور إذا وجدت
+                if (complaint.images.isNotEmpty)
+                  _buildImagesSection(),
+
+                const SizedBox(height: 20),
+
+                // المستندات إذا وجدت
+                if (complaint.docs.isNotEmpty)
+                  _buildDocumentsSection(),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              content,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -124,6 +111,10 @@ class ComplaintDetailsPage extends StatelessWidget {
   Widget _buildStatusCard() {
     return Card(
       color: _getStatusBackgroundColor(complaint.status),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: _getStatusColor(complaint.status).withOpacity(0.3), width: 1),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -131,26 +122,89 @@ class ComplaintDetailsPage extends StatelessWidget {
             Icon(
               _getStatusIconData(complaint.status),
               color: _getStatusColor(complaint.status),
+              size: 32,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'حالة الشكوى',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _getArabicStatusText(complaint.status),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: _getStatusColor(complaint.status),
+                    ),
+                  ),
+                  if (complaint.status == ComplaintStatus.requiresExtraInformation)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        'هذه الشكوى تحتاج إلى معلومات إضافية',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.teal[100],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailCard(String title, String content, IconData icon) {
+    return Card(
+      color: const Color(0xFF1A4A47), // ✅ أخضر أفتح
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.teal[300]!.withOpacity(0.2)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              icon,
+              color: Colors.teal[300], // ✅ أخضر فاتح بدل ذهبي
+              size: 20,
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Status',
+                  Text(
+                    title,
                     style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
+                      fontSize: 12,
+                      color: Colors.teal[100], // ✅ أخضر فاتح
                       fontWeight: FontWeight.w500,
                     ),
                   ),
+                  const SizedBox(height: 6),
                   Text(
-                    _getStatusText(complaint.status),
-                    style: TextStyle(
-                      fontSize: 16,
+                    content,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.white, // ✅ أبيض على خلفية خضراء
                       fontWeight: FontWeight.w500,
-                      color: _getStatusColor(complaint.status),
+                      height: 1.4,
                     ),
                   ),
                 ],
@@ -164,35 +218,68 @@ class ComplaintDetailsPage extends StatelessWidget {
 
   Widget _buildImagesSection() {
     return Card(
+      color: const Color(0xFF1A4A47),
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.teal[300]!.withOpacity(0.2)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Images',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            Text(
+              'الصور المرفقة',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.teal[300], // ✅ أخضر فاتح
+              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 12,
+              runSpacing: 12,
               children: complaint.images
                   .where((image) => image != null)
-                  .map(
-                    (image) => Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(image!, fit: BoxFit.cover),
-                      ),
+                  .map((image) => GestureDetector(
+                onTap: () {
+                  // يمكن إضافة عرض الصورة بحجم كامل هنا
+                },
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.teal[300]!.withOpacity(0.5)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      image!,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.teal[300]!),
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Icon(Icons.broken_image, color: Colors.teal[300]),
+                        );
+                      },
                     ),
-                  )
+                  ),
+                ),
+              ))
                   .toList(),
             ),
           ],
@@ -203,38 +290,61 @@ class ComplaintDetailsPage extends StatelessWidget {
 
   Widget _buildDocumentsSection() {
     return Card(
+      color: const Color(0xFF1A4A47),
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.teal[300]!.withOpacity(0.2)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Documents',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            Text(
+              'المستندات المرفقة',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.teal[300],
+              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             ...complaint.docs
                 .where((doc) => doc != null)
-                .map(
-                  (doc) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.insert_drive_file, size: 16),
-                          const SizedBox(width: 8),
-                          Text(doc!, style: const TextStyle(fontSize: 14)),
-                        ],
+                .map((doc) => Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.teal[300]!.withOpacity(0.3)),
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.teal[900]!.withOpacity(0.2),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.insert_drive_file,
+                      size: 24, color: Colors.teal[300]),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      doc!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
                       ),
                     ),
                   ),
-                ),
+                  IconButton(
+                    onPressed: () {
+                      // يمكن إضافة تنزيل المستند هنا
+                    },
+                    icon: Icon(Icons.download,
+                        size: 20, color: Colors.teal[300]),
+                  ),
+                ],
+              ),
+            ))
+                .toList(),
           ],
         ),
       ),
@@ -252,29 +362,37 @@ class ComplaintDetailsPage extends StatelessWidget {
       case ComplaintStatus.rejected:
         return Icons.cancel;
       case ComplaintStatus.requiresExtraInformation:
-        return Icons.warning;
+        return Icons.warning_amber_rounded;
     }
   }
 
-  String _getStatusText(ComplaintStatus status) {
-    return status.value
-        .split('_')
-        .map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
-        .join(' ');
+  String _getArabicStatusText(ComplaintStatus status) {
+    switch (status) {
+      case ComplaintStatus.newStatus:
+        return 'جديد';
+      case ComplaintStatus.processing:
+        return 'قيد المعالجة';
+      case ComplaintStatus.finished:
+        return 'مكتمل';
+      case ComplaintStatus.rejected:
+        return 'مرفوض';
+      case ComplaintStatus.requiresExtraInformation:
+        return 'يحتاج معلومات إضافية';
+    }
   }
 
   Color _getStatusColor(ComplaintStatus status) {
     switch (status) {
       case ComplaintStatus.newStatus:
-        return Colors.blue;
+        return Colors.blue[300]!;
       case ComplaintStatus.processing:
-        return Colors.orange;
+        return Colors.orange[300]!;
       case ComplaintStatus.finished:
-        return Colors.green;
+        return Colors.green[300]!;
       case ComplaintStatus.rejected:
-        return Colors.red;
+        return Colors.red[300]!;
       case ComplaintStatus.requiresExtraInformation:
-        return Colors.yellow;
+        return Colors.yellow[300]!;
     }
   }
 
@@ -291,4 +409,5 @@ class ComplaintDetailsPage extends StatelessWidget {
       case ComplaintStatus.requiresExtraInformation:
         return Colors.yellow.withOpacity(0.1);
     }
-  }}
+  }
+}

@@ -1,5 +1,5 @@
 
-import '../../../data/models/verify_code_request.dart';
+import '../../../data/models/verifyCode/verify_code_request.dart';
 
 abstract class VerificationEvent {}
 

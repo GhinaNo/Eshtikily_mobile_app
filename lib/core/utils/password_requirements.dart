@@ -1,4 +1,4 @@
-import 'package:eshhtikiyl_app/utils/validate.dart';
+import 'package:eshhtikiyl_app/core/utils/validate.dart';
 import 'package:flutter/material.dart';
 
 class PasswordRequirements extends StatelessWidget {

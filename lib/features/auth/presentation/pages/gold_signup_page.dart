@@ -1,16 +1,16 @@
-import 'package:eshhtikiyl_app/pages/gold_verification_page.dart';
+import 'package:eshhtikiyl_app/features/auth/presentation/pages/gold_verification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/network/http_client.dart';
-import '../../../../utils/validate.dart';
-import '../../../../utils/password_requirements.dart';
-import '../../../../widgets/gold_btn.dart';
-import '../../../../widgets/gold_logo.dart';
-import '../../../../widgets/gold_text_field.dart';
-import '../core/utils/toast_services.dart';
-import '../features/auth/data/datasources/auth_remote_data_source.dart';
-import '../features/auth/data/models/register_request.dart';
-import '../features/auth/presentation/blocs/register_bloc/register_bloc.dart';
+import '../../../../../../../core/network/http_client.dart';
+import '../../../../core/utils/validate.dart';
+import '../../../../core/utils/password_requirements.dart';
+import '../../../../../../../widgets/gold_btn.dart';
+import '../../../../../../../widgets/gold_logo.dart';
+import '../../../../../../../widgets/gold_text_field.dart';
+import '../../../../core/utils/toast_services.dart';
+import '../../data/datasources/auth_remote_data_source.dart';
+import '../../data/models/register/register_request.dart';
+import '../blocs/register_bloc/register_bloc.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -89,7 +89,7 @@ class _SignupPageState extends State<SignupPage> {
                   children: [
                     const EagleLogo(size: 140),
                     const SizedBox(height: 12),
-                    Text(
+                    const Text(
                       'انضم إلى منصة الشكاوى الحكومية',
                       style: TextStyle(
                         fontSize: 18,
@@ -98,8 +98,8 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 8),
-                    Text(
+                    const SizedBox(height: 8),
+                    const Text(
                       'أنشئ حسابك لتقديم شكواك والمشاركة في بناء سوريا الجديدة',
                       style: TextStyle(
                         fontSize: 14,

@@ -288,7 +288,7 @@ class LoginProtectionService {
     final keysToRemove = <String>[];
 
     _loginAttempts.forEach((email, attempt) {
-      if (now.difference(attempt.lastAttempt) > Duration(hours: 24)) {
+      if (now.difference(attempt.lastAttempt) > const Duration(hours: 24)) {
         keysToRemove.add(email);
       }
     });

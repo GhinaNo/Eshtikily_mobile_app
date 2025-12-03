@@ -4,12 +4,14 @@ import 'package:eshhtikiyl_app/core/utils/auth_storage.dart';
 
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/utils/logger.dart';
-import '../models/login_request.dart';
-import '../models/login_response.dart';
-import '../models/register_request.dart';
-import '../models/register_response.dart';
-import '../models/verify_code_request.dart';
-import '../models/verify_code_response.dart';
+import '../models/login/login_request.dart';
+import '../models/login/login_response.dart';
+import '../models/register/register_request.dart';
+import '../models/register/register_response.dart';
+import '../models/resendCode/resend_code_request.dart';
+import '../models/resendCode/resende_code_response.dart';
+import '../models/verifyCode/verify_code_request.dart';
+import '../models/verifyCode/verify_code_response.dart';
 
 class AuthRemoteDataSource {
   final HttpClient httpClient;
@@ -56,6 +58,24 @@ class AuthRemoteDataSource {
     }
   }
 
+  Future<ResendCodeResponse> resendVerificationCode(ResendCodeRequest request) async {
+    try {
+      Logger.info('Resending verification code to: ${request.email}');
+
+      final response = await httpClient.post(
+        endpoint: ApiEndpoints.resendCode,
+        data: request.toJson(),
+        requiresAuth: false,
+      );
+
+      Logger.info('Resend successful for: ${request.email}');
+      return ResendCodeResponse.fromJson(response);
+    } catch (e) {
+      Logger.error('Resend failed for: ${request.email}', error: e);
+      rethrow;
+    }
+  }
+
   Future<LoginResponse> login(LoginRequest request) async {
     try {
       Logger.info('Starting login for: ${request.email}');
@@ -90,11 +110,18 @@ class AuthRemoteDataSource {
       );
 
       Logger.info('Logout successful');
-
-      await AuthStorage.clearAllData();
     } catch (e) {
-      Logger.error('Logout failed', error: e);
-      rethrow;
+      final msg = e.toString();
+      if (msg.contains('401') || msg.contains('Unauthenticated')) {
+        Logger.info('Token expired, treating logout as successful');
+      } else {
+        Logger.error('Logout failed', error: e);
+      }
     }
+
+    // بأي حالة → امسح الداتا
+    await AuthStorage.clearAllData();
   }
+
+
 }

@@ -12,6 +12,6 @@ class EagleLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // The eagle + 5 stars are recreated with simple shapes.
-    return Image(image: AssetImage(this.imageName!), width: size, height: size);
+    return Image(image: AssetImage(imageName!), width: size, height: size);
   }
 }

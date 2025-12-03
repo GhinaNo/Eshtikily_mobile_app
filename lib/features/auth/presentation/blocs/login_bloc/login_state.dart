@@ -1,5 +1,5 @@
 
-import '../../../data/models/login_response.dart';
+import '../../../data/models/login/login_response.dart';
 abstract class LoginState {}
 
 class LoginInitial extends LoginState {}

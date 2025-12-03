@@ -1,4 +1,4 @@
-import 'package:eshhtikiyl_app/features/auth/data/models/verify_code_response.dart';
+import 'package:eshhtikiyl_app/features/auth/data/models/verifyCode/verify_code_response.dart';
 
 class LoginResponse {
   final String status;

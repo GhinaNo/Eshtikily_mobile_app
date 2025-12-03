@@ -1,5 +1,5 @@
 
-import '../../../data/models/verify_code_response.dart';
+import '../../../data/models/verifyCode/verify_code_response.dart';
 
 abstract class VerificationState {}
 

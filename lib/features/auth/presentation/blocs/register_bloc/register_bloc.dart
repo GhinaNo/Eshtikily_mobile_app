@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 
 import '../../../data/datasources/auth_remote_data_source.dart';
-import '../../../data/models/register_request.dart';
-import '../../../data/models/register_response.dart';
+import '../../../data/models/register/register_request.dart';
+import '../../../data/models/register/register_response.dart';
 
 part 'register_event.dart';
 part 'register_state.dart';

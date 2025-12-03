@@ -2,20 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/network/http_client.dart';
-import '../../../../utils/validate.dart';
-import '../../../../widgets/gold_btn.dart';
-import '../../../../widgets/gold_logo.dart';
-import '../../../../widgets/gold_text_field.dart';
-import '../core/utils/auth_storage.dart';
-import '../core/utils/toast_services.dart';
-import '../features/auth/data/datasources/auth_remote_data_source.dart';
-import '../features/auth/data/models/login_request.dart';
-import '../features/auth/data/models/login_response.dart';
-import '../features/auth/presentation/blocs/login_bloc/login_bloc.dart';
-import '../features/auth/presentation/blocs/login_bloc/login_event.dart';
-import '../features/auth/presentation/blocs/login_bloc/login_state.dart';
-import '../services/login_protection_service.dart';
+import '../../../../../../../core/network/http_client.dart';
+import '../../../../core/services/login_protection_service.dart';
+import '../../../../core/utils/validate.dart';
+import '../../../../../../../widgets/gold_btn.dart';
+import '../../../../../../../widgets/gold_logo.dart';
+import '../../../../../../../widgets/gold_text_field.dart';
+import '../../../../core/utils/auth_storage.dart';
+import '../../../../core/utils/toast_services.dart';
+import '../../data/datasources/auth_remote_data_source.dart';
+import '../../data/models/login/login_request.dart';
+import '../../data/models/login/login_response.dart';
+import '../blocs/login_bloc/login_bloc.dart';
+import '../blocs/login_bloc/login_event.dart';
+import '../blocs/login_bloc/login_state.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -455,7 +455,7 @@ class _LoginPageState extends State<LoginPage> {
         'phone_number': response.user.phoneNumber,
       });
 
-      Navigator.of(context).pushReplacementNamed('/list-complaint');
+      Navigator.of(context).pushReplacementNamed('/home-page');
     } catch (e) {
       ToastService.showError(context, 'فشل في حفظ الجلسة. يرجى المحاولة مرة أخرى');
     }

@@ -2,8 +2,7 @@ import 'package:eshhtikiyl_app/models/complaint.dart';
 import 'package:eshhtikiyl_app/models/complaint_display.dart';
 import 'package:eshhtikiyl_app/pages/complaint_detail.dart';
 import 'package:flutter/material.dart';
-
-import '../services/logout_srevice.dart';
+import '../core/services/logout_srevice.dart';
 
 class ListComplaintsPage extends StatefulWidget {
   const ListComplaintsPage({super.key});
@@ -13,101 +12,224 @@ class ListComplaintsPage extends StatefulWidget {
 }
 
 class _ListComplaintsPageState extends State<ListComplaintsPage> {
-  // Sample data - in real app, this would come from your data source
   List<ComplaintDisplay> complaints = [
     ComplaintDisplay(
-      type: 'Noise Complaint',
-      agency: 'City Hall',
-      location: 'Downtown',
-      description: 'Loud construction noise during night hours',
+      uuid: 'cmp-001',
+      type: 'شكوى ضوضاء',
+      agency: 'بلدية دمشق',
+      location: 'شارع بغداد - المزة',
+      description: 'وجود ضوضاء عالية من ورشة بناء تعمل حتى الساعة الثانية صباحاً',
+      images: ['https://example.com/noise1.jpg'],
+      status: ComplaintStatus.processing,
+      notesFromEmployee: 'تم إرسال فرق التفتيش للموقع',
+      extraInformation: 'يرجى تحديد وقت الضوضاء بدقة',
+    ),
+    ComplaintDisplay(
+      uuid: 'cmp-002',
+      type: 'مشكلة مرورية',
+      agency: 'إدارة السير',
+      location: 'تقاطع شارع النصر مع شارع القوتلي',
+      description: 'إشارة مرور معطلة تسبب ازدحاماً مرورياً شديداً',
+      images: [
+        'https://example.com/traffic1.jpg',
+        'https://example.com/traffic2.jpg'
+      ],
+      docs: ['تقرير_المرور.pdf'],
+      status: ComplaintStatus.requiresExtraInformation,
+      notesFromEmployee: 'مطلوب صور إضافية من زوايا مختلفة',
+      extraInformation: null,
+    ),
+    ComplaintDisplay(
+      uuid: 'cmp-003',
+      type: 'تسرب مياه',
+      agency: 'شركة مياه عدرا',
+      location: 'حي الطبالة - أمام المدرسة الابتدائية',
+      description: 'تسرب مياه مستمر من خط رئيسي لمدة 48 ساعة',
+      images: ['https://example.com/water1.jpg'],
+      status: ComplaintStatus.newStatus,
+    ),
+    ComplaintDisplay(
+      uuid: 'cmp-004',
+      type: 'انقطاع كهرباء',
+      agency: 'شركة كهرباء ريف دمشق',
+      location: 'حي القدم - المنطقة الصناعية',
+      description: 'انقطاع متكرر للتيار الكهربائي 5 مرات يومياً',
+      images: [],
+      docs: ['فاتورة_الكهرباء.pdf', 'شهادة_المولد.pdf'],
+      status: ComplaintStatus.finished,
+      notesFromEmployee: 'تم إصلاح الخط وضبط التيار',
+    ),
+    ComplaintDisplay(
+      uuid: 'cmp-005',
+      type: 'تراكم نفايات',
+      agency: 'شركة النظافة',
+      location: 'حي الميدان - سوق الحريقة',
+      description: 'تراكم النفايات لأكثر من أسبوع دون جمع',
+      images: ['https://example.com/waste1.jpg', 'https://example.com/waste2.jpg'],
+      status: ComplaintStatus.rejected,
+      notesFromEmployee: 'الموقع خارج منطقة الخدمة',
+    ),
+    ComplaintDisplay(
+      uuid: 'cmp-006',
+      type: 'تضرر أرصفة',
+      agency: 'مديرية الطرق',
+      location: 'شارع 29 أيار - أمام المستشفى الوطني',
+      description: 'أرصفة متضررة تشكل خطراً على المشاة',
+      images: ['https://example.com/sidewalk1.jpg'],
+      docs: ['تقرير_الهندسة.pdf'],
       status: ComplaintStatus.processing,
     ),
     ComplaintDisplay(
-      type: 'Traffic Issue',
-      agency: 'Traffic Department',
-      location: 'Main Street',
-      description: 'Traffic light not working properly',
+      uuid: 'cmp-007',
+      type: 'إعلانات مخالفة',
+      agency: 'دائرة الإعلانات',
+      location: 'وسط مدينة دمشق - ساحة الأمويين',
+      description: 'إعلانات غير مرخصة تعيق الرؤية وتشوه المنظر العام',
+      images: [
+        'https://example.com/ad1.jpg',
+        'https://example.com/ad2.jpg',
+        'https://example.com/ad3.jpg'
+      ],
       status: ComplaintStatus.requiresExtraInformation,
+      extraInformation: 'مطلوب صور توضح أبعاد الإعلانات',
     ),
     ComplaintDisplay(
-      type: 'Garbage Collection',
-      agency: 'Waste Management',
-      location: 'Suburb Area',
-      description: 'Garbage not collected for 3 days',
-      status: ComplaintStatus.newStatus,
+      uuid: 'cmp-008',
+      type: 'حفر طرق',
+      agency: 'وزارة الأشغال العامة',
+      location: 'طريق المطار - بالقرب من الجسر',
+      description: 'حفر في الطريق العام دون إشارات تحذيرية',
+      images: ['https://example.com/hole1.jpg'],
+      status: ComplaintStatus.finished,
+      notesFromEmployee: 'تم إصلاح الحفر ووضع التحذيرات اللازمة',
     ),
   ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Complaints'),
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout,color: Color(0xFFBFA46F),),
-            onPressed: () => LogoutService.handleLogout(context),
-            tooltip: 'تسجيل الخروج',
-          ),
-        ],
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: complaints.length,
-        itemBuilder: (context, index) {
-          final complaint = complaints[index];
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: ListTile(
-              contentPadding: const EdgeInsets.all(16),
-              leading: _getStatusIcon(complaint.status),
-              title: Text(
-                complaint.type,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+        title: Row(
+          children: [
+            // الشعار
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/logo.png'),
+                  fit: BoxFit.contain,
                 ),
               ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 4),
-                  Text(
-                    complaint.location,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Status: ${_getStatusText(complaint.status)}',
-                    style: TextStyle(
-                      color: _getStatusColor(complaint.status),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'شكواي',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontFamily: 'Almarai',
+                fontWeight: FontWeight.w600,
               ),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ComplaintDetailsPage(complaint: complaint),
+            ),
+          ],
+        ),
+        backgroundColor: const Color.fromARGB(168, 10, 60, 58),
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.3),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20),
+          ),
+        ),
+      ),
+      body: Container(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: complaints.length,
+          itemBuilder: (context, index) {
+            final complaint = complaints[index];
+            return _buildComplaintCard(complaint, context);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildComplaintCard(ComplaintDisplay complaint, BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      color: const Color(0xFF1A4A47),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.teal[300]!.withOpacity(0.3)),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(16),
+        leading: _getStatusIcon(complaint.status),
+        title: Text(
+          complaint.type,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            fontFamily: 'Almarai',
+            color: Colors.white,
+          ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Icon(Icons.location_on, size: 14, color: Colors.teal[200]),
+                const SizedBox(width: 4),
+                Text(
+                  complaint.location,
+                  style: TextStyle(
+                    color: Colors.teal[100],
+                    fontSize: 13,
                   ),
-                );
-              },
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: _getStatusColor(complaint.status).withOpacity(0.15),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: _getStatusColor(complaint.status).withOpacity(0.5),
+                ),
+              ),
+              child: Text(
+                _getArabicStatusText(complaint.status),
+                style: TextStyle(
+                  color: _getStatusColor(complaint.status),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        trailing: Icon(
+          Icons.arrow_forward_ios,
+          size: 16,
+          color: Colors.teal[300],
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ComplaintDetailsPage(complaint: complaint),
             ),
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).pushNamed('/create-complaint');
-        },
-        backgroundColor: Color(0xFFBFA46F),
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
       ),
     );
   }
@@ -115,38 +237,45 @@ class _ListComplaintsPageState extends State<ListComplaintsPage> {
   Icon _getStatusIcon(ComplaintStatus status) {
     switch (status) {
       case ComplaintStatus.newStatus:
-        return const Icon(Icons.new_releases, color: Colors.blue);
+        return Icon(Icons.new_releases, color: Colors.blue[300]);
       case ComplaintStatus.processing:
-        return const Icon(Icons.hourglass_empty, color: Colors.orange);
-
+        return Icon(Icons.hourglass_empty, color: Colors.orange[300]);
       case ComplaintStatus.finished:
-        return const Icon(Icons.check_circle, color: Colors.green);
+        return Icon(Icons.check_circle, color: Colors.green[300]);
       case ComplaintStatus.rejected:
-        return const Icon(Icons.cancel, color: Colors.red);
+        return Icon(Icons.cancel, color: Colors.red[300]);
       case ComplaintStatus.requiresExtraInformation:
-        return const Icon(Icons.warning, color: Colors.yellow);
+        return Icon(Icons.warning_amber_rounded, color: Colors.yellow[300]);
     }
   }
 
-  String _getStatusText(ComplaintStatus status) {
-    return status.value
-        .split('_')
-        .map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
-        .join(' ');
+  String _getArabicStatusText(ComplaintStatus status) {
+    switch (status) {
+      case ComplaintStatus.newStatus:
+        return 'جديد';
+      case ComplaintStatus.processing:
+        return 'قيد المعالجة';
+      case ComplaintStatus.finished:
+        return 'مكتمل';
+      case ComplaintStatus.rejected:
+        return 'مرفوض';
+      case ComplaintStatus.requiresExtraInformation:
+        return 'يحتاج معلومات إضافية';
+    }
   }
 
   Color _getStatusColor(ComplaintStatus status) {
     switch (status) {
       case ComplaintStatus.newStatus:
-        return Colors.blue;
+        return Colors.blue[300]!;
       case ComplaintStatus.processing:
-        return Colors.orange;
+        return Colors.orange[300]!;
       case ComplaintStatus.finished:
-        return Colors.green;
+        return Colors.green[300]!;
       case ComplaintStatus.rejected:
-        return Colors.red;
+        return Colors.red[300]!;
       case ComplaintStatus.requiresExtraInformation:
-        return Colors.yellow;
+        return Colors.yellow[300]!;
     }
   }
 }

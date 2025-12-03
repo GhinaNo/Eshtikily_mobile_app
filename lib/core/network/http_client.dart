@@ -1,12 +1,14 @@
 import 'dart:convert';
-import 'package:http/http.dart' as client;
+import 'package:http/http.dart' as http;
 import '../constants/api_constants.dart';
 import '../utils/auth_storage.dart';
 import '../utils/error_handler_services.dart';
 import '../utils/logger.dart';
-import 'package:http/http.dart' as http;
-
 import '../utils/app_messages.dart';
+
+extension FirstOrNull<E> on Iterable<E> {
+  E? get firstOrNull => isEmpty ? null : first;
+}
 
 class HttpClient {
   Future<Map<String, dynamic>> post({
@@ -38,11 +40,9 @@ class HttpClient {
       Logger.debug('Data: $data');
       Logger.debug('Headers: $headers');
 
-      final response = await client.post(
-        url,
-        headers: headers,
-        body: json.encode(data),
-      ).timeout(const Duration(seconds: ApiConstants.timeoutSeconds));
+      final response = await http
+          .post(url, headers: headers, body: json.encode(data))
+          .timeout(const Duration(seconds: ApiConstants.timeoutSeconds));
 
       Logger.debug('Status: ${response.statusCode}');
       Logger.debug('Response: ${response.body}');
@@ -60,6 +60,7 @@ class HttpClient {
       throw Exception(arabicError);
     }
   }
+
   Future<Map<String, dynamic>> get({
     required String endpoint,
     Map<String, String>? headers,
@@ -83,10 +84,9 @@ class HttpClient {
       Logger.debug('URL: $url');
       Logger.debug('Headers: $finalHeaders');
 
-      final response = await client.get(
-        url,
-        headers: finalHeaders,
-      ).timeout(const Duration(seconds: ApiConstants.timeoutSeconds));
+      final response = await http
+          .get(url, headers: finalHeaders)
+          .timeout(const Duration(seconds: ApiConstants.timeoutSeconds));
 
       Logger.debug('Status: ${response.statusCode}');
       Logger.debug('Response: ${response.body}');
@@ -98,12 +98,11 @@ class HttpClient {
       throw Exception(arabicError);
     }
   }
-}
 
   Future<bool> ping() async {
     try {
       final url = Uri.parse('${ApiConstants.baseUrl}/');
-      final response = await client.get(url).timeout(
+      final response = await http.get(url).timeout(
         const Duration(seconds: 10),
       );
 
@@ -118,6 +117,12 @@ class HttpClient {
   Map<String, dynamic> _handleResponse(http.Response response) {
     final statusCode = response.statusCode;
     final responseBody = response.body;
+
+    // ✅ التعامل مع انتهاء الجلسة مباشرة
+    if (statusCode == 401) {
+      AuthStorage.clearAllData();
+      throw Exception('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
+    }
 
     if (responseBody.isEmpty) {
       throw Exception(AppMessages.serverError);
@@ -139,19 +144,27 @@ class HttpClient {
   }
 
   String _extractArabicErrorMessage(Map<String, dynamic> jsonResponse, int statusCode) {
-    final rawMessage = jsonResponse['message'] ??
-        jsonResponse['error'] ??
-        jsonResponse['errors']?.toString() ??
-        '';
+    final rawMessage = jsonResponse['message'] ?? jsonResponse['error'] ?? '';
+    final errors = jsonResponse['errors'];
 
-    return _translateErrorMessage(rawMessage.toString(), statusCode);
+    return _translateErrorMessage(rawMessage.toString(), statusCode, errors: errors);
   }
 
-  String _translateErrorMessage(String message, int statusCode) {
+  String _translateErrorMessage(String message, int statusCode, {Map<String, dynamic>? errors}) {
     final messageLower = message.toLowerCase();
+
+     if (statusCode == 422) {
+    if (messageLower.contains('phone number has already been taken')) {
+    return 'رقم الهاتف مستخدم مسبقاً';
+    }
+    return 'بيانات غير صحيحة. يرجى مراجعة المدخلات';
+    }
+
 
     if (messageLower.contains('the email has already been taken')) {
       return AppMessages.emailAlreadyExists;
+    } else if (messageLower.contains('the phone number has already been taken')) {
+      return 'رقم الهاتف مستخدم مسبقاً';
     } else if (messageLower.contains('invalid verification code') ||
         messageLower.contains('wrong code')) {
       return AppMessages.invalidVerificationCode;
@@ -167,12 +180,8 @@ class HttpClient {
       return 'لم يتم العثور على الصفحة المطلوبة';
     } else if (statusCode == 500) {
       return AppMessages.serverError;
-    } else if (statusCode == 401) {
-      return AppMessages.unauthorized;
     } else if (statusCode == 403) {
       return 'ليس لديك صلاحية للوصول إلى هذا المورد';
-    } else if (statusCode == 422) {
-      return 'بيانات غير صحيحة. يرجى مراجعة المدخلات';
     }
 
     if (message.isNotEmpty && message.length < 100 && _isUserFriendly(message)) {
@@ -184,9 +193,18 @@ class HttpClient {
 
   bool _isUserFriendly(String message) {
     final technicalTerms = [
-      'exception', 'error', 'failed', 'null', 'undefined',
-      'sql', 'database', 'query', 'syntax', 'stack trace'
+      'exception',
+      'error',
+      'failed',
+      'null',
+      'undefined',
+      'sql',
+      'database',
+      'query',
+      'syntax',
+      'stack trace',
     ];
 
     return !technicalTerms.any((term) => message.toLowerCase().contains(term));
   }
+}

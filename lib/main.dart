@@ -1,22 +1,23 @@
 import 'package:eshhtikiyl_app/background_message_handler.dart';
 import 'package:eshhtikiyl_app/pages/complaint_list.dart';
 import 'package:eshhtikiyl_app/pages/create_complaint.dart';
-import 'package:eshhtikiyl_app/pages/gold_login_page.dart';
-import 'package:eshhtikiyl_app/pages/gold_signup_page.dart';
-import 'package:eshhtikiyl_app/services/notification_services.dart';
-import 'package:eshhtikiyl_app/services/login_protection_service.dart';
+import 'package:eshhtikiyl_app/features/auth/presentation/pages/gold_login_page.dart';
+import 'package:eshhtikiyl_app/features/auth/presentation/pages/gold_signup_page.dart';
+import 'package:eshhtikiyl_app/pages/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'core/services/login_protection_service.dart';
+import 'core/services/notification_services.dart';
 import 'core/utils/auth_storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
-    options: FirebaseOptions(
+    options: const FirebaseOptions(
       apiKey: "AIzaSyC19OHwq0BeMVKw5q3nft5liuzJtnzz6RI",
       appId: "1:95532699305:android:1e9ff37061bf6953e2e3b8",
       messagingSenderId: "95532699305",
@@ -99,7 +100,7 @@ class MyApp extends StatelessWidget {
           }
 
           final isLoggedIn = snapshot.data ?? false;
-          return isLoggedIn ? const ListComplaintsPage() : const LoginPage();
+          return isLoggedIn ? const HomePage() : const LoginPage();
         },
       ),
       routes: {
@@ -107,6 +108,7 @@ class MyApp extends StatelessWidget {
         '/login': (_) => const LoginPage(),
         '/create-complaint': (_) => const CreateComplaintPage(),
         '/list-complaint': (_) => const ListComplaintsPage(),
+        '/home-page':(_) => const HomePage(),
       },
     );
   }
