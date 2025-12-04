@@ -1,8 +1,8 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 import 'notification_services.dart';
-
-
 
 class AlertService {
   static Future<void> sendSecurityAlert({
@@ -14,9 +14,8 @@ class AlertService {
     try {
       await _sendPushNotification(title, message, alertType);
       _logSecurityEvent(email, alertType);
-
     } catch (e) {
-      print('Error sending security alert: $e');
+      debugPrint('Error sending security alert: $e');
     }
   }
 
@@ -31,18 +30,18 @@ class AlertService {
           'timestamp': DateTime.now().toString(),
         }),
       );
-      print('📱 Security push notification sent: $title');
+      debugPrint('📱 Security push notification sent: $title');
     } catch (e) {
-      print('Error sending security push notification: $e');
+      debugPrint('Error sending security push notification: $e');
     }
   }
 
   static void _logSecurityEvent(String email, String alertType) {
-    print('🔐 SECURITY EVENT LOGGED');
-    print('User: $email');
-    print('Event: $alertType');
-    print('Time: ${DateTime.now()}');
-    print('------------------------');
+    debugPrint('🔐 SECURITY EVENT LOGGED');
+    debugPrint('User: $email');
+    debugPrint('Event: $alertType');
+    debugPrint('Time: ${DateTime.now()}');
+    debugPrint('------------------------');
   }
 
   static Future<void> sendAccountLockedAlert(String email) async {
@@ -50,7 +49,8 @@ class AlertService {
       email: email,
       alertType: 'account_locked',
       title: '🔒 الحساب مغلق - تنبيه أمني',
-      message: 'تم إغلاق حسابك مؤقتاً بسبب تعدد محاولات الدخول الفاشلة. سيتم فتح الحساب تلقائياً بعد 15 دقيقة.',
+      message:
+      'تم إغلاق حسابك مؤقتاً بسبب تعدد محاولات الدخول الفاشلة. سيتم فتح الحساب تلقائياً بعد 15 دقيقة.',
     );
   }
 
@@ -59,7 +59,8 @@ class AlertService {
       email: email,
       alertType: 'suspicious_activity',
       title: '⚠️ نشاط مشبوه',
-      message: 'تم رصد $failedAttempts محاولات دخول فاشلة على حسابك. إذا لم تكن أنت، يرجى تأمين حسابك فوراً.',
+      message:
+      'تم رصد $failedAttempts محاولات دخول فاشلة على حسابك. إذا لم تكن أنت، يرجى تأمين حسابك فوراً.',
     );
   }
 

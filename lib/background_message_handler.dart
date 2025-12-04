@@ -11,3 +11,4 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
   await NotificationService.handleBackgroundMessage(message);
 }
+

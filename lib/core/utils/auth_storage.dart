@@ -1,67 +1,76 @@
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class AuthStorage {
-  static const String _authTokenKey = 'auth_token';
-  static const String _userDataKey = 'user_data';
-  static const String _isLoggedInKey = 'is_logged_in';
+static const String _authTokenKey = 'auth_token';
+static const String _userDataKey = 'user_data';
+static const String _isLoggedInKey = 'is_logged_in';
 
-  static Future<void> saveAuthToken(String token) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_authTokenKey, token);
-      await prefs.setBool(_isLoggedInKey, true);
-    } catch (e) {
-      throw Exception('فشل في حفظ بيانات الجلسة');
-    }
-  }
+// Caching للمحسنات الأداء
+static String? _cachedToken;
+static Map<String, dynamic>? _cachedUserData;
+static bool? _cachedIsLoggedIn;
+static SharedPreferences? _prefsInstance;
 
-  static Future<String?> getAuthToken() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getString(_authTokenKey);
-    } catch (e) {
-      return null;
-    }
-  }
+static Future<SharedPreferences> get _prefs async {
+_prefsInstance ??= await SharedPreferences.getInstance();
+return _prefsInstance!;
+}
 
-  static Future<void> saveUserData(Map<String, dynamic> userData) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_userDataKey, jsonEncode(userData));
-    } catch (e) {
-      throw Exception('فشل في حفظ بيانات المستخدم');
-    }
-  }
+static Future<void> saveAuthToken(String token) async {
+_cachedToken = token;
+_cachedIsLoggedIn = true;
+final prefs = await _prefs;
+await prefs.setString(_authTokenKey, token);
+await prefs.setBool(_isLoggedInKey, true);
+}
 
-  static Future<Map<String, dynamic>?> getUserData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final data = prefs.getString(_userDataKey);
-      return data != null ? jsonDecode(data) : null;
-    } catch (e) {
-      return null;
-    }
-  }
+static Future<String?> getAuthToken() async {
+if (_cachedToken != null) return _cachedToken;
 
-  static Future<bool> isLoggedIn() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getBool(_isLoggedInKey) ?? false;
-    } catch (e) {
-      return false;
-    }
-  }
+final prefs = await _prefs;
+_cachedToken = prefs.getString(_authTokenKey);
+return _cachedToken;
+}
 
-  static Future<void> clearAllData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_authTokenKey);
-      await prefs.remove(_userDataKey);
-      await prefs.remove(_isLoggedInKey);
-      print('تم مسح بيانات الجلسة');
-    } catch (e) {
-      throw Exception('فشل في مسح بيانات الجلسة');
-    }
-  }
+static Future<void> saveUserData(Map<String, dynamic> userData) async {
+_cachedUserData = userData;
+final prefs = await _prefs;
+await prefs.setString(_userDataKey, jsonEncode(userData));
+}
+
+static Future<Map<String, dynamic>?> getUserData() async {
+if (_cachedUserData != null) return _cachedUserData;
+
+final prefs = await _prefs;
+final data = prefs.getString(_userDataKey);
+if (data != null) {
+try {
+_cachedUserData = jsonDecode(data);
+} catch (e) {
+_cachedUserData = null;
+}
+}
+return _cachedUserData;
+}
+
+static Future<bool> isLoggedIn() async {
+if (_cachedIsLoggedIn != null) return _cachedIsLoggedIn!;
+
+final prefs = await _prefs;
+_cachedIsLoggedIn = prefs.getBool(_isLoggedInKey) ?? false;
+return _cachedIsLoggedIn!;
+}
+
+static Future<void> clearAllData() async {
+_cachedToken = null;
+_cachedUserData = null;
+_cachedIsLoggedIn = false;
+
+final prefs = await _prefs;
+await prefs.remove(_authTokenKey);
+await prefs.remove(_userDataKey);
+await prefs.remove(_isLoggedInKey);
+}
 }

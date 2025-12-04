@@ -1,73 +1,39 @@
 
-import 'package:eshhtikiyl_app/core/utils/toast_services.dart';
-
 import '../utils/app_messages.dart';
-import 'package:flutter/material.dart';
 
-class ErrorHandlerService {
-  static String handleApiError(dynamic error) {
-    if (error is String) {
-      return _parseArabicErrorMessage(error);
-    }
+/// معالج أخطاء مبسط
+class ErrorHandler {
+static String apiError(dynamic error) {
+if (error is String) return _simplifyMessage(error);
 
-    if (error is FormatException) {
-      return AppMessages.serverError;
-    } else if (error.toString().contains('TimeoutException')) {
-      return AppMessages.timeoutError;
-    } else if (error.toString().contains('SocketException')) {
-      return AppMessages.networkError;
-    }
+final msg = error.toString();
 
-    return AppMessages.unknownError;
-  }
+// الأخطاء الشائعة فقط
+if (msg.contains('Timeout')) return AppMessages.timeoutError;
+if (msg.contains('Socket') || msg.contains('Network')) return AppMessages.networkError;
+if (msg.contains('401') || msg.contains('Unauthorized')) return AppMessages.unauthorized;
+if (msg.contains('Format') || msg.contains('JSON')) return AppMessages.serverError;
 
-  static String _parseArabicErrorMessage(String error) {
-    final errorLower = error.toLowerCase();
+return AppMessages.unknownError;
+}
 
-    if (errorLower.contains('network') || errorLower.contains('internet') || errorLower.contains('connection')) {
-      return AppMessages.networkError;
-    } else if (errorLower.contains('unauthorized') || errorLower.contains('token')) {
-      return AppMessages.unauthorized;
-    } else if (errorLower.contains('server')) {
-      return AppMessages.serverError;
-    } else if (errorLower.contains('email') && errorLower.contains('already')) {
-      return AppMessages.emailAlreadyExists;
-    } else if (errorLower.contains('invalid') && errorLower.contains('code')) {
-      return AppMessages.invalidVerificationCode;
-    } else if (errorLower.contains('invalid') && (errorLower.contains('email') || errorLower.contains('password'))) {
-      return AppMessages.invalidCredentials;
-    } else if (errorLower.contains('user') && errorLower.contains('not found')) {
-      return AppMessages.userNotFound;
-    } else if (errorLower.contains('verification') && errorLower.contains('expired')) {
-      return AppMessages.verificationCodeExpired;
-    }
+static String _simplifyMessage(String error) {
+final msg = error.toLowerCase();
 
-    if (error.length < 80 && _isArabicFriendly(error)) {
-      return error;
-    }
+// الرسائل المهمة فقط
+if (msg.contains('email') && msg.contains('taken')) return AppMessages.emailAlreadyExists;
+if (msg.contains('verification') || msg.contains('wrong code')) return AppMessages.invalidVerificationCode;
+if (msg.contains('credentials')) return AppMessages.invalidCredentials;
+if (msg.contains('server')) return AppMessages.serverError;
 
-    return AppMessages.unknownError;
-  }
+// إذا كانت قصيرة وغير تقنية
+if (error.length < 50 && !_isTechnical(error)) return error;
 
-  static bool _isArabicFriendly(String message) {
-    final technicalTerms = [
-      'exception', 'error', 'failed', 'null', 'undefined',
-      'sql', 'database', 'query', 'syntax'
-    ];
+return AppMessages.unknownError;
+}
 
-    return !technicalTerms.any((term) => message.toLowerCase().contains(term));
-  }
-
-  static void showApiError(BuildContext context, dynamic error) {
-    final errorMessage = handleApiError(error);
-    ToastService.showError(context, errorMessage);
-  }
-
-  static void showSuccessMessage(BuildContext context, String message) {
-    ToastService.showSuccess(context, message);
-  }
-
-  static void showWarningMessage(BuildContext context, String message) {
-    ToastService.showWarning(context, message);
-  }
+static bool _isTechnical(String msg) {
+final tech = ['exception', 'error', 'failed', 'sql', 'database'];
+return tech.any((t) => msg.contains(t));
+}
 }

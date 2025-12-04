@@ -1,210 +1,158 @@
 import 'dart:convert';
+import 'package:eshhtikiyl_app/core/network/exceptions.dart';
 import 'package:http/http.dart' as http;
+
 import '../constants/api_constants.dart';
 import '../utils/auth_storage.dart';
-import '../utils/error_handler_services.dart';
 import '../utils/logger.dart';
 import '../utils/app_messages.dart';
 
-extension FirstOrNull<E> on Iterable<E> {
-  E? get firstOrNull => isEmpty ? null : first;
-}
-
 class HttpClient {
+  static const Map<String, String> _defaultHeaders = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+
   Future<Map<String, dynamic>> post({
     required String endpoint,
     required Map<String, dynamic> data,
     bool requiresAuth = false,
   }) async {
-    try {
-      final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
-
-      final headers = <String, String>{
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      };
-
-      if (requiresAuth) {
-        final token = await AuthStorage.getAuthToken();
-        if (token != null) {
-          headers['Authorization'] = 'Bearer $token';
-          Logger.debug('Using token: ${token.substring(0, 20)}...');
-        } else {
-          Logger.error('No token found for authenticated request');
-          throw Exception('لم يتم العثور على رمز الجلسة');
-        }
-      }
-
-      Logger.api('POST', endpoint);
-      Logger.debug('URL: $url');
-      Logger.debug('Data: $data');
-      Logger.debug('Headers: $headers');
-
-      final response = await http
-          .post(url, headers: headers, body: json.encode(data))
-          .timeout(const Duration(seconds: ApiConstants.timeoutSeconds));
-
-      Logger.debug('Status: ${response.statusCode}');
-      Logger.debug('Response: ${response.body}');
-
-      return _handleResponse(response);
-    } catch (e) {
-      Logger.error('Request failed', error: e);
-
-      if (requiresAuth && e.toString().contains('401')) {
-        Logger.error('Token expired, clearing local data');
-        await AuthStorage.clearAllData();
-      }
-
-      final arabicError = ErrorHandlerService.handleApiError(e);
-      throw Exception(arabicError);
-    }
+    return _sendRequest(
+      method: 'POST',
+      endpoint: endpoint,
+      data: data,
+      requiresAuth: requiresAuth,
+    );
   }
 
   Future<Map<String, dynamic>> get({
     required String endpoint,
-    Map<String, String>? headers,
     bool requiresAuth = false,
   }) async {
-    try {
-      final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
-
-      final finalHeaders = headers ?? <String, String>{
-        'Accept': 'application/json',
-      };
-
-      if (requiresAuth) {
-        final token = await AuthStorage.getAuthToken();
-        if (token != null) {
-          finalHeaders['Authorization'] = 'Bearer $token';
-        }
-      }
-
-      Logger.api('GET', endpoint);
-      Logger.debug('URL: $url');
-      Logger.debug('Headers: $finalHeaders');
-
-      final response = await http
-          .get(url, headers: finalHeaders)
-          .timeout(const Duration(seconds: ApiConstants.timeoutSeconds));
-
-      Logger.debug('Status: ${response.statusCode}');
-      Logger.debug('Response: ${response.body}');
-
-      return _handleResponse(response);
-    } catch (e) {
-      Logger.error('GET Request failed', error: e);
-      final arabicError = ErrorHandlerService.handleApiError(e);
-      throw Exception(arabicError);
-    }
+    return _sendRequest(
+      method: 'GET',
+      endpoint: endpoint,
+      requiresAuth: requiresAuth,
+    );
   }
 
   Future<bool> ping() async {
     try {
-      final url = Uri.parse('${ApiConstants.baseUrl}/');
-      final response = await http.get(url).timeout(
-        const Duration(seconds: 10),
-      );
-
-      Logger.debug('Ping status: ${response.statusCode}');
+      final response = await http
+          .get(Uri.parse('${ApiConstants.baseUrl}/'))
+          .timeout(const Duration(seconds: 5));
       return response.statusCode == 200;
-    } catch (e) {
-      Logger.error('Ping failed', error: e);
+    } catch (_) {
       return false;
     }
   }
 
-  Map<String, dynamic> _handleResponse(http.Response response) {
-    final statusCode = response.statusCode;
-    final responseBody = response.body;
+  Future<Map<String, dynamic>> _sendRequest({
+    required String method,
+    required String endpoint,
+    Map<String, dynamic>? data,
+    bool requiresAuth = false,
+  }) async {
+    try {
+      final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
+      final headers = Map<String, String>.from(_defaultHeaders);
 
-    // ✅ التعامل مع انتهاء الجلسة مباشرة
-    if (statusCode == 401) {
+      if (requiresAuth) {
+        final token = await AuthStorage.getAuthToken();
+        if (token == null) throw ApiException('لم يتم العثور على رمز الجلسة', 401);
+        headers['Authorization'] = 'Bearer $token';
+      }
+
+      http.Response response;
+
+      if (method == 'POST') {
+        response = await http
+            .post(
+          url,
+          headers: headers,
+          body: data != null ? json.encode(data) : null,
+        )
+            .timeout(const Duration(seconds: ApiConstants.timeoutSeconds));
+      } else if (method == 'GET') {
+        response = await http
+            .get(url, headers: headers)
+            .timeout(const Duration(seconds: ApiConstants.timeoutSeconds));
+      } else {
+        throw ApiException('طريقة الطلب غير مدعومة: $method', 400);
+      }
+
+      return _handleResponse(response);
+    } on ApiException {
+      rethrow;
+    } on http.ClientException catch (e) {
+      throw NetworkException('فشل الاتصال بالخادم: ${e.message}');
+    } on Exception catch (e) {
+      throw NetworkException(_simplifyError(e));
+    }
+  }
+
+  Map<String, dynamic> _handleResponse(http.Response response) {
+    if (response.statusCode == 401) {
       AuthStorage.clearAllData();
-      throw Exception('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
+      throw ApiException('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.', 401);
     }
 
-    if (responseBody.isEmpty) {
-      throw Exception(AppMessages.serverError);
+    if (response.body.isEmpty) {
+      throw ApiException(AppMessages.serverError, response.statusCode);
     }
 
     try {
-      final jsonResponse = json.decode(responseBody);
+      final jsonResponse = json.decode(response.body);
 
-      if (statusCode >= 200 && statusCode < 300) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         return jsonResponse;
       } else {
-        final errorMessage = _extractArabicErrorMessage(jsonResponse, statusCode);
-        throw Exception(errorMessage);
+        throw ApiException(_getErrorMessage(jsonResponse, response.statusCode), response.statusCode);
       }
-    } catch (e) {
-      Logger.error('JSON parse failed', error: e);
-      throw Exception(AppMessages.serverError);
+    } catch (_) {
+      throw ApiException(AppMessages.serverError, response.statusCode);
     }
   }
 
-  String _extractArabicErrorMessage(Map<String, dynamic> jsonResponse, int statusCode) {
-    final rawMessage = jsonResponse['message'] ?? jsonResponse['error'] ?? '';
-    final errors = jsonResponse['errors'];
+  String _getErrorMessage(Map<String, dynamic> json, int statusCode) {
+    final message = (json['message'] ?? json['error'] ?? '').toString().toLowerCase();
 
-    return _translateErrorMessage(rawMessage.toString(), statusCode, errors: errors);
-  }
-
-  String _translateErrorMessage(String message, int statusCode, {Map<String, dynamic>? errors}) {
-    final messageLower = message.toLowerCase();
-
-     if (statusCode == 422) {
-    if (messageLower.contains('phone number has already been taken')) {
-    return 'رقم الهاتف مستخدم مسبقاً';
-    }
-    return 'بيانات غير صحيحة. يرجى مراجعة المدخلات';
+    switch (statusCode) {
+      case 422:
+        return message.contains('phone') ? 'رقم الهاتف مستخدم مسبقاً' : 'بيانات غير صحيحة';
+      case 404:
+        return 'لم يتم العثور على الصفحة';
+      case 403:
+        return 'لا تملك الصلاحية';
+      case 500:
+        return AppMessages.serverError;
     }
 
-
-    if (messageLower.contains('the email has already been taken')) {
-      return AppMessages.emailAlreadyExists;
-    } else if (messageLower.contains('the phone number has already been taken')) {
-      return 'رقم الهاتف مستخدم مسبقاً';
-    } else if (messageLower.contains('invalid verification code') ||
-        messageLower.contains('wrong code')) {
+    if (message.contains('email has already been taken')) return AppMessages.emailAlreadyExists;
+    if (message.contains('phone number has already been taken')) return 'رقم الهاتف مستخدم';
+    if (message.contains('verification code') || message.contains('wrong code')) {
       return AppMessages.invalidVerificationCode;
-    } else if (messageLower.contains('these credentials do not match our records')) {
-      return AppMessages.invalidCredentials;
-    } else if (messageLower.contains('unauthenticated') ||
-        messageLower.contains('token')) {
-      return AppMessages.unauthorized;
-    } else if (messageLower.contains('server error') ||
-        messageLower.contains('internal server')) {
-      return AppMessages.serverError;
-    } else if (statusCode == 404) {
-      return 'لم يتم العثور على الصفحة المطلوبة';
-    } else if (statusCode == 500) {
-      return AppMessages.serverError;
-    } else if (statusCode == 403) {
-      return 'ليس لديك صلاحية للوصول إلى هذا المورد';
     }
-
-    if (message.isNotEmpty && message.length < 100 && _isUserFriendly(message)) {
-      return message;
+    if (message.contains('credentials do not match')) return AppMessages.invalidCredentials;
+    if (message.contains('unauthenticated') || message.contains('token')) {
+      return AppMessages.unauthorized;
     }
 
     return 'حدث خطأ (رمز: $statusCode)';
   }
 
-  bool _isUserFriendly(String message) {
-    final technicalTerms = [
-      'exception',
-      'error',
-      'failed',
-      'null',
-      'undefined',
-      'sql',
-      'database',
-      'query',
-      'syntax',
-      'stack trace',
-    ];
+  String _simplifyError(dynamic error) {
+    final errorStr = error.toString();
 
-    return !technicalTerms.any((term) => message.toLowerCase().contains(term));
+    if (errorStr.contains('Timeout') || errorStr.contains('Socket')) {
+      return 'فشل الاتصال بالخادم';
+    }
+
+    if (errorStr.contains('Format') || errorStr.contains('JSON')) {
+      return AppMessages.serverError;
+    }
+
+    return 'حدث خطأ غير متوقع';
   }
 }

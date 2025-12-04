@@ -20,8 +20,8 @@ class UserData {
   final int id;
   final String name;
   final String email;
-  final String phoneNumber;
-  final String? emailVerifiedAt;
+  final String phone_number;
+  final String? email_verified_at;
   final String token;
   final String createdAt;
   final String updatedAt;
@@ -30,8 +30,8 @@ class UserData {
     required this.id,
     required this.name,
     required this.email,
-    required this.phoneNumber,
-    this.emailVerifiedAt,
+    required this.phone_number,
+    this.email_verified_at,
     required this.token,
     required this.createdAt,
     required this.updatedAt,
@@ -42,8 +42,8 @@ class UserData {
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       email: json['email'] ?? '',
-      phoneNumber: json['phone_number'] ?? '',
-      emailVerifiedAt: json['email_verified_at'],
+      phone_number: json['phone_number'] ?? '',
+      email_verified_at: json['email_verified_at'],
       token: json['token'] ?? '',
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
@@ -55,8 +55,8 @@ class UserData {
       'id': id,
       'name': name,
       'email': email,
-      'phone_number': phoneNumber,
-      'email_verified_at': emailVerifiedAt,
+      'phone_number': phone_number,
+      'email_verified_at': email_verified_at,
       'token': token,
       'created_at': createdAt,
       'updated_at': updatedAt,

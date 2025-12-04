@@ -69,7 +69,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ToastService.showError(context, state.error);
           } else if (state is ProfileLoaded) {
             nameController.text = state.user.name;
-            phoneController.text = state.user.phoneNumber;
+            phoneController.text = state.user.phone_number;
           }
         },
         builder: (context, state) {

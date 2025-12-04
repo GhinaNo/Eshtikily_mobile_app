@@ -99,7 +99,7 @@ class AuthRemoteDataSource {
     }
   }
 
-  Future<void> logout() async {
+  Future<bool> logout() async {
     try {
       Logger.info('Starting logout process');
 
@@ -110,17 +110,19 @@ class AuthRemoteDataSource {
       );
 
       Logger.info('Logout successful');
+      return true;
     } catch (e) {
-      final msg = e.toString();
-      if (msg.contains('401') || msg.contains('Unauthenticated')) {
-        Logger.info('Token expired, treating logout as successful');
-      } else {
-        Logger.error('Logout failed', error: e);
-      }
-    }
+      Logger.error('Logout failed', error: e);
 
-    // بأي حالة → امسح الداتا
-    await AuthStorage.clearAllData();
+      final msg = e.toString();
+
+      if (msg.contains('401') || msg.contains('Unauthenticated')) {
+        Logger.info('Token expired, treat as successful');
+        return true;
+      }
+
+      return false;
+    }
   }
 
 

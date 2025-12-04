@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../utils/local_noti_storage.dart';
+
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
   FlutterLocalNotificationsPlugin();
@@ -93,6 +95,13 @@ class NotificationService {
     required String body,
     required String payload,
   }) async {
+    await LocalNotificationStorage.addNotification({
+      'title': title,
+      'body': body,
+      'payload': payload,
+      'receivedAt': DateTime.now().toIso8601String(),
+    });
+
     const AndroidNotificationDetails androidNotificationDetails =
     AndroidNotificationDetails(
       'high_importance_channel',
@@ -119,13 +128,14 @@ class NotificationService {
     );
 
     await _notificationsPlugin.show(
-      Random.secure().nextInt(100000000),
+      DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title,
       body,
       notificationDetails,
       payload: payload,
     );
   }
+
 
   static Future<void> showLocalNotification({
     required String title,

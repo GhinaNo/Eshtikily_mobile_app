@@ -5,6 +5,7 @@ import '../../../../../../../core/network/http_client.dart';
 import '../../../../../../../widgets/gold_btn.dart';
 import '../../../../../../../widgets/gold_logo.dart';
 import '../../../../../../../widgets/gold_text_field.dart';
+import '../../../../core/routes/app_routes.dart';
 import '../../../../core/utils/auth_storage.dart';
 import '../../../../core/utils/toast_services.dart';
 import '../../data/datasources/auth_remote_data_source.dart';
@@ -297,9 +298,9 @@ class _VerificationPageState extends State<VerificationPage> {
         'id': response.user.id,
         'name': response.user.name,
         'email': response.user.email,
-        'phone_number': response.user.phoneNumber,
+        'phone_number': response.user.phone_number,
       });
-      Navigator.pushReplacementNamed(context, '/home-page');
+      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
     } catch (e) {
       ToastService.showError(context, 'فشل في حفظ الجلسة');
     }

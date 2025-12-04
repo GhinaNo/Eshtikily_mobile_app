@@ -71,7 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           _buildProfileCard("الاسم", user!.name, Icons.person),
           _buildProfileCard("البريد الإلكتروني", user!.email, Icons.email),
-          _buildProfileCard("رقم الهاتف", user!.phoneNumber, Icons.phone),
+          _buildProfileCard("رقم الهاتف", user!.phone_number, Icons.phone),
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

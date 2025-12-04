@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -47,21 +49,27 @@ class LoginProtectionService {
   static final Map<String, DateTime> _lastAttemptTime = {};
   static bool _isInitialized = false;
 
+  static Completer<void>? _initCompleter;
+
   static Future<void> initialize() async {
     if (_isInitialized) return;
+    if (_initCompleter != null) {
+      return _initCompleter!.future;
+    }
+    _initCompleter = Completer();
 
     await _loadAttempts();
     await _loadLastAttemptTimes();
     _isInitialized = true;
+
     debugPrint('✅ LoginProtectionService initialized');
+    _initCompleter!.complete();
   }
 
   static Future<void> _saveAttempts() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final attemptsJson = jsonEncode(_loginAttempts.map((key, value) =>
-          MapEntry(key, value.toJson())
-      ));
+      final attemptsJson = jsonEncode(_loginAttempts.map((key, value) => MapEntry(key, value.toJson())));
       await prefs.setString('login_attempts', attemptsJson);
       debugPrint('💾 Saved login attempts to storage');
     } catch (e) {
@@ -95,9 +103,7 @@ class LoginProtectionService {
   static Future<void> _saveLastAttemptTimes() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final timesJson = jsonEncode(_lastAttemptTime.map((key, value) =>
-          MapEntry(key, value.toIso8601String())
-      ));
+      final timesJson = jsonEncode(_lastAttemptTime.map((key, value) => MapEntry(key, value.toIso8601String())));
       await prefs.setString('last_attempt_times', timesJson);
     } catch (e) {
       debugPrint('❌ Error saving last attempt times: $e');
@@ -167,8 +173,8 @@ class LoginProtectionService {
     return timeSinceLastAttempt < _minTimeBetweenAttempts;
   }
 
-  static void recordFailedAttempt(String email) async {
-    if (!_isInitialized) await initialize();
+  static Future<void> recordFailedAttempt(String email) async {
+    await initialize();
 
     var attempt = _loginAttempts[email] ?? LoginAttempt(email: email);
 
@@ -227,22 +233,22 @@ class LoginProtectionService {
     AlertService.sendAccountLockedAlert(email);
   }
 
-  static void recordSuccessfulAttempt(String email) async {
-    if (!_isInitialized) await initialize();
+  static Future<void> recordSuccessfulAttempt(String email) async {
+    await initialize();
 
     debugPrint('✅ Login successful - Resetting attempts for: $email');
-    _resetAttempts(email);
+    await _resetAttempts(email);
   }
 
-  static void recordAttemptTime(String email) async {
-    if (!_isInitialized) await initialize();
+  static Future<void> recordAttemptTime(String email) async {
+    await initialize();
 
     _lastAttemptTime[email] = DateTime.now();
     await _saveLastAttemptTimes();
     debugPrint('⏰ Recorded attempt time for: $email');
   }
 
-  static void _resetAttempts(String email) async {
+  static Future<void> _resetAttempts(String email) async {
     _loginAttempts.remove(email);
     _lastAttemptTime.remove(email);
 

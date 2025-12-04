@@ -100,7 +100,6 @@ class _CreateComplaintPageState extends State<CreateComplaintPage> {
       appBar: AppBar(
         title: Row(
           children: [
-            // الشعار
             Container(
               width: 40,
               height: 40,
@@ -135,7 +134,7 @@ class _CreateComplaintPageState extends State<CreateComplaintPage> {
         ),
       ),
       body: Container(
-        color: Theme.of(context).scaffoldBackgroundColor, // ✅ خلفية خضراء داكنة
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
