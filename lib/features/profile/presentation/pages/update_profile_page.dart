@@ -46,7 +46,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
       final request = UpdateProfileRequest(
         name: nameController.text,
         phoneNumber: phoneController.text,
-        password: passwordController.text.isEmpty ? null : passwordController.text,
+        password:
+            passwordController.text.isEmpty ? null : passwordController.text,
       );
       context.read<UpdateProfileBloc>().add(UpdateProfileData(request));
     }
@@ -57,7 +58,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Scaffold(
       backgroundColor: const Color(0xFF0A3C3A),
       appBar: AppBar(
-        title: const Text("تعديل الملف الشخصي", style: TextStyle(fontFamily: 'Almarai')),
+        leading: IconButton(
+          icon:  Icon(Icons.arrow_back,
+            color: Colors.teal[400],
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),        title: const Text("تعديل الملف الشخصي",
+            style: TextStyle(fontFamily: 'Almarai')),
         backgroundColor: const Color.fromARGB(168, 10, 60, 58),
       ),
       body: BlocConsumer<UpdateProfileBloc, UpdateProfileState>(
@@ -74,7 +83,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         },
         builder: (context, state) {
           if (state is ProfileLoading) {
-            return const Center(child: CircularProgressIndicator(color: Colors.teal));
+            return const Center(
+                child: CircularProgressIndicator(color: Colors.teal));
           }
 
           return SingleChildScrollView(
@@ -105,7 +115,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     obscureText: _obscurePassword,
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: Colors.white70,
                       ),
                       onPressed: () {
@@ -124,7 +136,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   if (passwordController.text.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: PasswordRequirements(password: passwordController.text),
+                      child: PasswordRequirements(
+                          password: passwordController.text),
                     ),
                   const SizedBox(height: 24),
                   SizedBox(
@@ -133,7 +146,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal[300],
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                       onPressed: state is ProfileLoading ? null : _saveProfile,
                       child: const Text(
@@ -172,7 +186,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         labelStyle: const TextStyle(color: Colors.tealAccent),
         filled: true,
         fillColor: Colors.white.withOpacity(0.1),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none),
         suffixIcon: suffixIcon,
       ),
     );

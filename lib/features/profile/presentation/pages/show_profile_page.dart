@@ -4,6 +4,7 @@ import 'package:eshhtikiyl_app/features/profile/presentation/pages/update_profil
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/routes/app_routes.dart';
 import '../../data/datasources/profile_remote_data_source.dart';
 import '../bloc/update_profile_bloc/bloc_update_profile.dart';
 import '../../../auth/data/models/verifyCode/verify_code_response.dart';
@@ -46,7 +47,14 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       backgroundColor: const Color(0xFF0A3C3A),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(168, 10, 60, 58),
+        leading: IconButton(
+          icon:  Icon(Icons.arrow_back,
+            color: Colors.teal[400],
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),        backgroundColor: const Color.fromARGB(168, 10, 60, 58),
         title: const Text(
           "الملف الشخصي",
           style: TextStyle(
@@ -65,42 +73,39 @@ class _ProfilePageState extends State<ProfilePage> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.teal))
           : user == null
-          ? const Center(child: Text("لا توجد بيانات", style: TextStyle(color: Colors.white)))
-          : ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildProfileCard("الاسم", user!.name, Icons.person),
-          _buildProfileCard("البريد الإلكتروني", user!.email, Icons.email),
-          _buildProfileCard("رقم الهاتف", user!.phone_number, Icons.phone),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildActionButton("تعديل", Icons.edit, Colors.teal, () {
-                final remoteDataSource = ProfileRemoteDataSource(httpClient: HttpClient());
+              ? const Center(
+                  child: Text("لا توجد بيانات",
+                      style: TextStyle(color: Colors.white)))
+              : ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    _buildProfileCard("الاسم", user!.name, Icons.person),
+                    _buildProfileCard(
+                        "البريد الإلكتروني", user!.email, Icons.email),
+                    _buildProfileCard(
+                        "رقم الهاتف", user!.phone_number, Icons.phone),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildActionButton("تعديل", Icons.edit, Colors.teal,
+                            () {
+                          final remoteDataSource =
+                              ProfileRemoteDataSource(httpClient: HttpClient());
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BlocProvider<UpdateProfileBloc>(
-                      create: (_) => UpdateProfileBloc(remoteDataSource: remoteDataSource),
-                      child: EditProfilePage(remoteDataSource: remoteDataSource),
-                    ),
-                  ),
-                ).then((_) => fetchProfile());
-              }),
-              _buildActionButton("حذف", Icons.delete, Colors.red, () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const DeleteProfilePage(),
-                  ),
-                );
-              }),
-            ],
-          )
-        ],
-      ),
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.editProfile,
+                            arguments: remoteDataSource,
+                          ).then((_) => fetchProfile());
+                        }),
+                        _buildActionButton("حذف", Icons.delete, Colors.red, () {
+                          Navigator.pushNamed(context, AppRoutes.deleteProfile);
+                        }),
+                      ],
+                    )
+                  ],
+                ),
     );
   }
 
@@ -112,13 +117,16 @@ class _ProfilePageState extends State<ProfilePage> {
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
         leading: Icon(icon, color: Colors.teal[300]),
-        title: Text(title, style: const TextStyle(color: Colors.white, fontFamily: 'Almarai')),
-        subtitle: Text(value, style: TextStyle(color: Colors.teal[100], fontFamily: 'Almarai')),
+        title: Text(title,
+            style: const TextStyle(color: Colors.white, fontFamily: 'Almarai')),
+        subtitle: Text(value,
+            style: TextStyle(color: Colors.teal[100], fontFamily: 'Almarai')),
       ),
     );
   }
 
-  Widget _buildActionButton(String label, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildActionButton(
+      String label, IconData icon, Color color, VoidCallback onTap) {
     return ElevatedButton.icon(
       onPressed: onTap,
       icon: Icon(icon, color: Colors.white),

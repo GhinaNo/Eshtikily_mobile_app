@@ -3,8 +3,8 @@ import 'package:eshhtikiyl_app/widgets/gold_btn.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
-import '../core/utils/toast_services.dart';
-import '../models/complaint.dart';
+import '../../core/utils/toast_services.dart';
+import '../../models/complaint.dart';
 
 class CreateComplaintPage extends StatefulWidget {
   const CreateComplaintPage({super.key});
@@ -85,7 +85,6 @@ class _CreateComplaintPageState extends State<CreateComplaintPage> {
 
         ToastService.showSuccess(context, "تم إنشاء الشكوى بنجاح");
         Navigator.pop(context, complaint);
-
       } catch (e) {
         ToastService.showError(context, "فشل في إنشاء الشكوى: $e");
       } finally {
@@ -98,6 +97,7 @@ class _CreateComplaintPageState extends State<CreateComplaintPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Row(
           children: [
             Container(
@@ -211,11 +211,14 @@ class _CreateComplaintPageState extends State<CreateComplaintPage> {
                       children: [
                         ElevatedButton.icon(
                           onPressed: _pickImages,
-                          icon: const Icon(Icons.add_a_photo, color: Colors.white),
-                          label: const Text('إضافة صور', style: TextStyle(color: Colors.white)),
+                          icon: const Icon(Icons.add_a_photo,
+                              color: Colors.white),
+                          label: const Text('إضافة صور',
+                              style: TextStyle(color: Colors.white)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.teal[400], // ✅ أخضر فاتح
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                         ),
@@ -224,7 +227,8 @@ class _CreateComplaintPageState extends State<CreateComplaintPage> {
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: List.generate(_selectedImages.length, (index) {
+                            children:
+                                List.generate(_selectedImages.length, (index) {
                               return _buildImagePreview(index);
                             }),
                           ),
@@ -241,17 +245,22 @@ class _CreateComplaintPageState extends State<CreateComplaintPage> {
                       children: [
                         ElevatedButton.icon(
                           onPressed: _pickDocuments,
-                          icon: const Icon(Icons.attach_file, color: Colors.white),
-                          label: const Text('إضافة مستندات', style: TextStyle(color: Colors.white)),
+                          icon: const Icon(Icons.attach_file,
+                              color: Colors.white),
+                          label: const Text('إضافة مستندات',
+                              style: TextStyle(color: Colors.white)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.teal[400],
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                         ),
                         const SizedBox(height: 12),
                         if (_selectedDocuments.isNotEmpty)
-                          ..._selectedDocuments.map(_buildDocumentItem).toList(),
+                          ..._selectedDocuments
+                              .map(_buildDocumentItem)
+                              .toList(),
                       ],
                     ),
                   ),
@@ -286,7 +295,8 @@ class _CreateComplaintPageState extends State<CreateComplaintPage> {
       style: const TextStyle(color: Colors.white), // ✅ نص أبيض
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Colors.teal[300]), // ✅ أخضر فاتح
+        labelStyle: TextStyle(color: Colors.teal[300]),
+        // ✅ أخضر فاتح
         hintText: hint,
         hintStyle: TextStyle(color: Colors.teal[100]!.withOpacity(0.7)),
         border: OutlineInputBorder(
@@ -303,7 +313,8 @@ class _CreateComplaintPageState extends State<CreateComplaintPage> {
         ),
         prefixIcon: Icon(icon, color: Colors.teal[300]),
         filled: true,
-        fillColor: Colors.teal[900]!.withOpacity(0.2), // ✅ خلفية خضراء داكنة شفافة
+        fillColor:
+            Colors.teal[900]!.withOpacity(0.2), // ✅ خلفية خضراء داكنة شفافة
       ),
       validator: validator,
     );

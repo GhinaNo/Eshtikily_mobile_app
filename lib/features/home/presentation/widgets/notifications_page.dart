@@ -21,7 +21,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Future<void> _loadNotifications() async {
     final notifs = await LocalNotificationStorage.getNotifications();
     setState(() {
-      _notifications = notifs.reversed.toList(); // نعرض الأحدث أولاً
+      _notifications = notifs.reversed.toList();
     });
   }
 
@@ -44,10 +44,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
     setState(() {
       _notifications.removeAt(index);
     });
-    // حفظ التحديث بعد الحذف
     await LocalNotificationStorage.saveNotifications(_notifications.reversed.toList());
 
-    // إظهار رسالة تأكيد مع إمكانية التراجع
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('تم حذف الإشعار'),
@@ -98,13 +96,41 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF144D4A),
-        title: const Text(
-          'الإشعارات',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/logo.png'),
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'الاشعارات',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontFamily: 'Almarai',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
-        centerTitle: true,
+        backgroundColor: const Color.fromARGB(168, 10, 60, 58),
         elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.3),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20),
+          ),
+        ),
       ),
       backgroundColor: const Color(0xFF0F2E2B),
       body: _notifications.isEmpty

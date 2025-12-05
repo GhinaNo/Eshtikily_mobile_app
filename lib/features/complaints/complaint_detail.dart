@@ -1,7 +1,7 @@
 import 'package:eshhtikiyl_app/models/complaint_display.dart';
-import 'package:eshhtikiyl_app/pages/edit_complaint.dart';
+import 'package:eshhtikiyl_app/features/complaints/edit_complaint.dart';
 import 'package:flutter/material.dart';
-import '../models/complaint.dart';
+import '../../models/complaint.dart';
 
 class ComplaintDetailsPage extends StatelessWidget {
   final ComplaintDisplay complaint;
@@ -12,22 +12,15 @@ class ComplaintDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        leading: IconButton(
+          icon:  Icon(Icons.arrow_back,
+            color: Colors.teal[400],
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),        title: Row(
           children: [
-            // الشعار
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/logo.png'),
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
             const Text(
               'تفاصيل الشكوى',
               style: TextStyle(
@@ -56,50 +49,48 @@ class ComplaintDetailsPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // بطاقة الحالة
                 _buildStatusCard(),
                 const SizedBox(height: 20),
 
-                // معلومات الشكوى
-                _buildDetailCard('نوع الشكوى', complaint.type, Icons.report_problem),
+                _buildDetailCard(
+                    'نوع الشكوى', complaint.type, Icons.report_problem),
                 const SizedBox(height: 12),
 
-                _buildDetailCard('الجهة المعنية', complaint.agency, Icons.business),
+                _buildDetailCard(
+                    'الجهة المعنية', complaint.agency, Icons.business),
                 const SizedBox(height: 12),
 
-                _buildDetailCard('الموقع', complaint.location, Icons.location_on),
+                _buildDetailCard(
+                    'الموقع', complaint.location, Icons.location_on),
                 const SizedBox(height: 12),
 
-                _buildDetailCard('وصف المشكلة', complaint.description, Icons.description),
+                _buildDetailCard(
+                    'وصف المشكلة', complaint.description, Icons.description),
                 const SizedBox(height: 20),
 
-                // معلومات إضافية إذا وجدت
                 if (complaint.extraInformation != null)
                   Column(
                     children: [
-                      _buildDetailCard('معلومات إضافية', complaint.extraInformation!, Icons.info_outline),
+                      _buildDetailCard('معلومات إضافية',
+                          complaint.extraInformation!, Icons.info_outline),
                       const SizedBox(height: 20),
                     ],
                   ),
 
-                // ملاحظات الموظف إذا وجدت
                 if (complaint.notesFromEmployee != null)
                   Column(
                     children: [
-                      _buildDetailCard('ملاحظات الموظف', complaint.notesFromEmployee!, Icons.notes),
+                      _buildDetailCard('ملاحظات الموظف',
+                          complaint.notesFromEmployee!, Icons.notes),
                       const SizedBox(height: 20),
                     ],
                   ),
 
-                // الصور إذا وجدت
-                if (complaint.images.isNotEmpty)
-                  _buildImagesSection(),
+                if (complaint.images.isNotEmpty) _buildImagesSection(),
 
                 const SizedBox(height: 20),
 
-                // المستندات إذا وجدت
-                if (complaint.docs.isNotEmpty)
-                  _buildDocumentsSection(),
+                if (complaint.docs.isNotEmpty) _buildDocumentsSection(),
               ],
             ),
           ),
@@ -113,7 +104,9 @@ class ComplaintDetailsPage extends StatelessWidget {
       color: _getStatusBackgroundColor(complaint.status),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: _getStatusColor(complaint.status).withOpacity(0.3), width: 1),
+        side: BorderSide(
+            color: _getStatusColor(complaint.status).withOpacity(0.3),
+            width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -146,7 +139,8 @@ class ComplaintDetailsPage extends StatelessWidget {
                       color: _getStatusColor(complaint.status),
                     ),
                   ),
-                  if (complaint.status == ComplaintStatus.requiresExtraInformation)
+                  if (complaint.status ==
+                      ComplaintStatus.requiresExtraInformation)
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
@@ -244,42 +238,48 @@ class ComplaintDetailsPage extends StatelessWidget {
               children: complaint.images
                   .where((image) => image != null)
                   .map((image) => GestureDetector(
-                onTap: () {
-                  // يمكن إضافة عرض الصورة بحجم كامل هنا
-                },
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.teal[300]!.withOpacity(0.5)),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      image!,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.teal[300]!),
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                                : null,
+                        onTap: () {
+                          // يمكن إضافة عرض الصورة بحجم كامل هنا
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: Colors.teal[300]!.withOpacity(0.5)),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Center(
-                          child: Icon(Icons.broken_image, color: Colors.teal[300]),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ))
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              image!,
+                              fit: BoxFit.cover,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.teal[300]!),
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                        : null,
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Icon(Icons.broken_image,
+                                      color: Colors.teal[300]),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ))
                   .toList(),
             ),
           ],
@@ -313,37 +313,38 @@ class ComplaintDetailsPage extends StatelessWidget {
             ...complaint.docs
                 .where((doc) => doc != null)
                 .map((doc) => Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.teal[300]!.withOpacity(0.3)),
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.teal[900]!.withOpacity(0.2),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.insert_drive_file,
-                      size: 24, color: Colors.teal[300]),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      doc!,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: Colors.teal[300]!.withOpacity(0.3)),
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.teal[900]!.withOpacity(0.2),
                       ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      // يمكن إضافة تنزيل المستند هنا
-                    },
-                    icon: Icon(Icons.download,
-                        size: 20, color: Colors.teal[300]),
-                  ),
-                ],
-              ),
-            ))
+                      child: Row(
+                        children: [
+                          Icon(Icons.insert_drive_file,
+                              size: 24, color: Colors.teal[300]),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              doc!,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              // يمكن إضافة تنزيل المستند هنا
+                            },
+                            icon: Icon(Icons.download,
+                                size: 20, color: Colors.teal[300]),
+                          ),
+                        ],
+                      ),
+                    ))
                 .toList(),
           ],
         ),

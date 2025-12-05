@@ -1,8 +1,8 @@
 import 'package:eshhtikiyl_app/models/complaint.dart';
 import 'package:eshhtikiyl_app/models/complaint_display.dart';
-import 'package:eshhtikiyl_app/pages/complaint_detail.dart';
+import 'package:eshhtikiyl_app/features/complaints/complaint_detail.dart';
 import 'package:flutter/material.dart';
-import '../core/services/logout_srevice.dart';
+import '../../core/services/logout_srevice.dart';
 
 class ListComplaintsPage extends StatefulWidget {
   const ListComplaintsPage({super.key});
@@ -18,7 +18,8 @@ class _ListComplaintsPageState extends State<ListComplaintsPage> {
       type: 'شكوى ضوضاء',
       agency: 'بلدية دمشق',
       location: 'شارع بغداد - المزة',
-      description: 'وجود ضوضاء عالية من ورشة بناء تعمل حتى الساعة الثانية صباحاً',
+      description:
+          'وجود ضوضاء عالية من ورشة بناء تعمل حتى الساعة الثانية صباحاً',
       images: ['https://example.com/noise1.jpg'],
       status: ComplaintStatus.processing,
       notesFromEmployee: 'تم إرسال فرق التفتيش للموقع',
@@ -65,7 +66,10 @@ class _ListComplaintsPageState extends State<ListComplaintsPage> {
       agency: 'شركة النظافة',
       location: 'حي الميدان - سوق الحريقة',
       description: 'تراكم النفايات لأكثر من أسبوع دون جمع',
-      images: ['https://example.com/waste1.jpg', 'https://example.com/waste2.jpg'],
+      images: [
+        'https://example.com/waste1.jpg',
+        'https://example.com/waste2.jpg'
+      ],
       status: ComplaintStatus.rejected,
       notesFromEmployee: 'الموقع خارج منطقة الخدمة',
     ),
@@ -104,13 +108,14 @@ class _ListComplaintsPageState extends State<ListComplaintsPage> {
       notesFromEmployee: 'تم إصلاح الحفر ووضع التحذيرات اللازمة',
     ),
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Row(
           children: [
-            // الشعار
             Container(
               width: 40,
               height: 40,

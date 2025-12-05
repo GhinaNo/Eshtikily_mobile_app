@@ -1,7 +1,7 @@
 import 'package:eshhtikiyl_app/models/complaint.dart';
 import 'package:flutter/material.dart';
-import '../models/complaint_display.dart';
-import '../widgets/gold_btn.dart';
+import '../../models/complaint_display.dart';
+import '../../widgets/gold_btn.dart';
 
 class EditComplaintPage extends StatefulWidget {
   final ComplaintDisplay complaint;
@@ -44,12 +44,10 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
             : null,
       );
 
-      // TODO: استدعاء API التحديث هنا
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('تم تحديث الشكوى بنجاح!'),
-          backgroundColor: Colors.teal[400], // ✅ أخضر بدل green
+          backgroundColor: Colors.teal[400],
           duration: const Duration(seconds: 2),
         ),
       );
@@ -62,8 +60,17 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('تعديل الشكوى', style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color.fromARGB(168, 10, 60, 58), // ✅ أخضر داكن
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back,
+            color: Colors.teal[400],
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),        title:
+            const Text('تعديل الشكوى', style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color.fromARGB(168, 10, 60, 58),
         foregroundColor: Colors.white,
         elevation: 4,
         shape: const RoundedRectangleBorder(
@@ -73,7 +80,7 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
         ),
       ),
       body: Container(
-        color: Theme.of(context).scaffoldBackgroundColor, // ✅ خلفية خضراء داكنة
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
@@ -82,15 +89,10 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // بطاقة معلومات الحالة
                   _buildInfoCard(),
                   const SizedBox(height: 24),
-
-                  // حقل المعلومات الإضافية
                   _buildTextField(),
                   const SizedBox(height: 32),
-
-                  // زر التحديث
                   SizedBox(
                     width: double.infinity,
                     child: GoldButton(
@@ -109,7 +111,7 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
 
   Widget _buildInfoCard() {
     return Card(
-      color: Colors.teal[900]!.withOpacity(0.3), // ✅ أخضر داكن شفاف
+      color: Colors.teal[900]!.withOpacity(0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: Colors.teal[300]!.withOpacity(0.5), width: 1),
@@ -120,7 +122,7 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
           children: [
             Icon(
               Icons.warning_amber_rounded,
-              color: Colors.teal[300], // ✅ أخضر فاتح
+              color: Colors.teal[300],
               size: 28,
             ),
             const SizedBox(width: 16),
@@ -131,7 +133,7 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
                   Text(
                     'معلومات الحالة',
                     style: TextStyle(
-                      color: Colors.teal[100], // ✅ أخضر فاتح
+                      color: Colors.teal[100],
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -139,9 +141,9 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
                   const SizedBox(height: 6),
                   Text(
                     'الحالة: ${_getArabicStatusText(widget.complaint.status)}\n'
-                        'يمكنك إضافة المعلومات الإضافية المطلوبة',
+                    'يمكنك إضافة المعلومات الإضافية المطلوبة',
                     style: TextStyle(
-                      color: Colors.teal[50], // ✅ أخضر فاتح جداً
+                      color: Colors.teal[50],
                       fontSize: 12,
                       height: 1.4,
                     ),
@@ -158,10 +160,10 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
   Widget _buildTextField() {
     return TextFormField(
       controller: _extraInformationController,
-      style: const TextStyle(color: Colors.white), // ✅ نص أبيض
+      style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: 'المعلومات الإضافية المطلوبة',
-        labelStyle: TextStyle(color: Colors.teal[300]), // ✅ أخضر فاتح
+        labelStyle: TextStyle(color: Colors.teal[300]),
         hintText: 'أضف المعلومات الإضافية المطلوبة...',
         hintStyle: TextStyle(color: Colors.teal[100]!.withOpacity(0.7)),
         alignLabelWithHint: true,
@@ -179,7 +181,7 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
         ),
         prefixIcon: Icon(Icons.info_outline, color: Colors.teal[300]),
         filled: true,
-        fillColor: Colors.teal[900]!.withOpacity(0.2), // ✅ خلفية خضراء داكنة شفافة
+        fillColor: Colors.teal[900]!.withOpacity(0.2),
       ),
       maxLines: 5,
       minLines: 3,

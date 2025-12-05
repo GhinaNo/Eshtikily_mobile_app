@@ -1,6 +1,7 @@
 import 'package:eshhtikiyl_app/features/home/presentation/models/more_menu_item.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/routes/app_routes.dart';
 import '../../../../core/services/logout_srevice.dart';
 import '../../../profile/presentation/pages/show_profile_page.dart';
 
@@ -13,10 +14,7 @@ class MoreTab extends StatelessWidget {
       title: "الملف الشخصي",
       iconColor: Colors.blue[200],
       onTap: (context) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const ProfilePage()),
-        );
+        Navigator.pushNamed(context, AppRoutes.profile);
       },
     ),
     MoreMenuItem(
@@ -24,7 +22,6 @@ class MoreTab extends StatelessWidget {
       title: "الإعدادات",
       iconColor: Colors.amber[200],
       onTap: (context) {
-// TODO: إضافة صفحة الإعدادات
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("صفحة الإعدادات قريباً..."),
@@ -36,15 +33,7 @@ class MoreTab extends StatelessWidget {
       icon: Icons.help_outline,
       title: "المساعدة والدعم",
       iconColor: Colors.green[200],
-      onTap: (context) {
-      },
-    ),
-    MoreMenuItem(
-      icon: Icons.info_outline,
-      title: "عن التطبيق",
-      iconColor: Colors.purple[200],
-      onTap: (context) {
-      },
+      onTap: (context) {},
     ),
     MoreMenuItem(
       icon: Icons.logout,
@@ -67,6 +56,7 @@ class MoreTab extends StatelessWidget {
 
   AppBar _buildAppBar() {
     return AppBar(
+      automaticallyImplyLeading: false,
       title: const Row(
         children: [
           Icon(Icons.more_horiz, color: Colors.white, size: 28),
@@ -99,7 +89,6 @@ class MoreTab extends StatelessWidget {
       child: Column(
         children: [
           _buildUserCard(),
-
           Expanded(
             child: ListView.separated(
               itemCount: _menuItems.length,
@@ -178,7 +167,8 @@ class MoreTab extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: item.iconColor?.withOpacity(0.2) ?? Colors.white.withOpacity(0.1),
+          color:
+              item.iconColor?.withOpacity(0.2) ?? Colors.white.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(item.icon, color: item.iconColor ?? Colors.white),

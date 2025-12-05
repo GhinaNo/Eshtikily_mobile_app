@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/network/http_client.dart';
+import '../../../../core/routes/app_routes.dart';
 import '../../data/datasources/profile_remote_data_source.dart';
 import '../../../../widgets/gold_text_field.dart';
 import '../../../../widgets/gold_btn.dart';
@@ -27,7 +28,6 @@ class _DeleteProfilePageState extends State<DeleteProfilePage> {
     );
   }
 
-  // ✅ Dialog متناسق مع تصميم التطبيق
   Future<bool?> _showConfirmationDialog(BuildContext context) {
     return showDialog<bool>(
       context: context,
@@ -75,7 +75,8 @@ class _DeleteProfilePageState extends State<DeleteProfilePage> {
                       ),
                       child: const Text(
                         'إلغاء',
-                        style: TextStyle(color: Colors.white70, fontFamily: 'Almarai'),
+                        style: TextStyle(
+                            color: Colors.white70, fontFamily: 'Almarai'),
                       ),
                     ),
                   ),
@@ -92,7 +93,8 @@ class _DeleteProfilePageState extends State<DeleteProfilePage> {
                       ),
                       child: const Text(
                         'حذف',
-                        style: TextStyle(color: Colors.white, fontFamily: 'Almarai'),
+                        style: TextStyle(
+                            color: Colors.white, fontFamily: 'Almarai'),
                       ),
                     ),
                   ),
@@ -115,8 +117,8 @@ class _DeleteProfilePageState extends State<DeleteProfilePage> {
   void _handleDelete(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       context.read<DeleteProfileBloc>().add(
-        DeleteProfileSubmitted(password: _passwordCtrl.text),
-      );
+            DeleteProfileSubmitted(password: _passwordCtrl.text),
+          );
     }
   }
 
@@ -125,13 +127,22 @@ class _DeleteProfilePageState extends State<DeleteProfilePage> {
     return BlocProvider(
       create: (_) => _createBloc(),
       child: Scaffold(
-        appBar: AppBar(title: const Text("حذف الحساب")),
+        appBar: AppBar(
+          title: const Text("حذف الحساب"),
+          leading: IconButton(
+            icon:  Icon(Icons.arrow_back,
+              color: Colors.teal[400],
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),        ),
         body: BlocListener<DeleteProfileBloc, DeleteProfileState>(
           listener: (context, state) {
             if (state is DeleteProfileSuccess) {
               ToastService.showSuccess(context, state.message);
-              // بعد الحذف → العودة للصفحة الرئيسية (Login)
-              Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+              Navigator.pushNamedAndRemoveUntil(
+                  context, AppRoutes.login, (route) => false);
             } else if (state is DeleteProfileFailure) {
               ToastService.showError(context, state.error);
             }
@@ -147,11 +158,14 @@ class _DeleteProfilePageState extends State<DeleteProfilePage> {
                     controller: _passwordCtrl,
                     hint: 'أدخل كلمة المرور لتأكيد الحذف',
                     obscure: _obscurePassword,
-                    validator: (txt) =>
-                    txt == null || txt.isEmpty ? 'يرجى إدخال كلمة المرور' : null,
+                    validator: (txt) => txt == null || txt.isEmpty
+                        ? 'يرجى إدخال كلمة المرور'
+                        : null,
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: Colors.white70,
                       ),
                       onPressed: () {
@@ -165,8 +179,9 @@ class _DeleteProfilePageState extends State<DeleteProfilePage> {
                   BlocBuilder<DeleteProfileBloc, DeleteProfileState>(
                     builder: (context, state) {
                       return GoldButton(
-                        label:
-                        state is DeleteProfileLoading ? 'جاري الحذف...' : 'حذف الحساب',
+                        label: state is DeleteProfileLoading
+                            ? 'جاري الحذف...'
+                            : 'حذف الحساب',
                         onTap: state is DeleteProfileLoading
                             ? null
                             : () => _confirmDelete(context),

@@ -1,12 +1,10 @@
 import 'package:eshhtikiyl_app/background_message_handler.dart';
-import 'package:eshhtikiyl_app/features/auth/presentation/pages/gold_login_page.dart';
-import 'package:eshhtikiyl_app/features/auth/presentation/pages/gold_signup_page.dart';
-import 'package:eshhtikiyl_app/pages/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'core/routes/app_routes.dart';
 import 'core/services/login_protection_service.dart';
 import 'core/services/notification_services.dart';
 import 'core/utils/auth_storage.dart';
@@ -59,7 +57,7 @@ class MyApp extends StatelessWidget {
         Locale('en', 'US'),
       ],
       locale: const Locale('ar', 'AE'),
-      home: const _AppLoader(),
+      initialRoute: AppRoutes.loader,
       onGenerateRoute: AppRouter.generateRoute,
     );
   }
@@ -107,74 +105,87 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class _AppLoader extends StatelessWidget {
-  const _AppLoader();
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: _checkLoginStatus(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildSplashScreen();
-        }
-
-        final isLoggedIn = snapshot.data ?? false;
-        return isLoggedIn
-            ? const HomePage()
-            : const LoginPage();
-      },
-    );
-  }
-
-  Widget _buildSplashScreen() {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0A3C3A),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/logo.png'),
-                  fit: BoxFit.contain,
-                ),
-              ),
-              child: const Icon(
-                Icons.gavel,
-                size: 60,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'جاري التحميل...',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontFamily: 'Almarai',
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  static Future<bool> _checkLoginStatus() async {
-    try {
-      return await AuthStorage.isLoggedIn();
-    } catch (e) {
-      return false;
-    }
-  }
-}
+// class _AppLoader extends StatefulWidget {
+//   const _AppLoader({super.key});
+//
+//   @override
+//   State<_AppLoader> createState() => _AppLoaderState();
+// }
+//
+// class _AppLoaderState extends State<_AppLoader> {
+//   Future<bool> _checkLoginStatus() async {
+//     try {
+//       return await AuthStorage.isLoggedIn();
+//     } catch (e) {
+//       return false;
+//     }
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return FutureBuilder<bool>(
+//       future: _checkLoginStatus(),
+//       builder: (context, snapshot) {
+//         if (snapshot.connectionState == ConnectionState.waiting) {
+//           return _buildSplashScreen();
+//         }
+//
+//         final isLoggedIn = snapshot.data ?? false;
+//
+//         // Navigate after build complete
+//         WidgetsBinding.instance.addPostFrameCallback((_) {
+//           if (isLoggedIn) {
+//             Navigator.pushReplacementNamed(context, '/home');
+//           } else {
+//             Navigator.pushReplacementNamed(context, '/login');
+//           }
+//         });
+//
+//         return Container(color: const Color(0xFF0A3C3A));
+//       },
+//     );
+//   }
+//
+//   Widget _buildSplashScreen() {
+//     return Scaffold(
+//       backgroundColor: const Color(0xFF0A3C3A),
+//       body: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Container(
+//               width: 120,
+//               height: 120,
+//               decoration: BoxDecoration(
+//                 color: Colors.white.withOpacity(0.1),
+//                 borderRadius: BorderRadius.circular(8),
+//                 image: const DecorationImage(
+//                   image: AssetImage('assets/images/logo.png'),
+//                   fit: BoxFit.contain,
+//                 ),
+//               ),
+//               child: const Icon(
+//                 Icons.gavel,
+//                 size: 60,
+//                 color: Colors.white,
+//               ),
+//             ),
+//             const SizedBox(height: 20),
+//             const CircularProgressIndicator(
+//               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+//             ),
+//             const SizedBox(height: 20),
+//             const Text(
+//               'جاري التحميل...',
+//               style: TextStyle(
+//                 color: Colors.white,
+//                 fontSize: 16,
+//                 fontFamily: 'Almarai',
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

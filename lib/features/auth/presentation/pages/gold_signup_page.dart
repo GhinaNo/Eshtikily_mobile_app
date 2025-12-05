@@ -2,6 +2,7 @@ import 'package:eshhtikiyl_app/features/auth/presentation/pages/gold_verificatio
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../../../core/network/http_client.dart';
+import '../../../../core/routes/app_routes.dart';
 import '../../../../core/utils/validate.dart';
 import '../../../../core/utils/password_requirements.dart';
 import '../../../../../../../widgets/gold_btn.dart';
@@ -69,14 +70,12 @@ class _SignupPageState extends State<SignupPage> {
             listener: (context, state) {
               if (state is RegisterSuccess) {
                 ToastService.showSuccess(context, "تم إنشاء الحساب بنجاح! تحقق من بريدك الإلكتروني.");
-                Navigator.pushReplacement(
+                Navigator.pushReplacementNamed(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => VerificationPage(
-                      email: _emailCtrl.text.trim(),
-                    ),
-                  ),
+                  AppRoutes.verification,
+                  arguments: _emailCtrl.text.trim(),
                 );
+
               } else if (state is RegisterFailure) {
                 ToastService.showError(context, state.error);
               }
